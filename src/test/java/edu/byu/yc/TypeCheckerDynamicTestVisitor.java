@@ -30,39 +30,39 @@ public class TypeCheckerDynamicTestVisitor extends TypeCheckerAbstractVisitor {
 
     public Stack<DynamicNode> testNode;
     public ArrayList<DynamicNode> infixTests;
-    
+
     public TypeCheckerDynamicTestVisitor(Map<List<String>, String> st) {
         symbolTable = st;
         prims = new HashSet<>();
         prims.add(INT);
         prims.add(BOOLEAN);
         arithmeticOperators = new HashSet<>();
-        arithmeticOperators.add(InfixExpression.Operator.TIMES);
-        arithmeticOperators.add(InfixExpression.Operator.DIVIDE);
-        arithmeticOperators.add(InfixExpression.Operator.REMAINDER);
-        arithmeticOperators.add(InfixExpression.Operator.PLUS);
-        arithmeticOperators.add(InfixExpression.Operator.MINUS);
-        arithmeticOperators.add(InfixExpression.Operator.LEFT_SHIFT);
-        arithmeticOperators.add(InfixExpression.Operator.RIGHT_SHIFT_SIGNED);
-        arithmeticOperators.add(InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED);
+        arithmeticOperators.add(InfixExpression.Operator.TIMES);                // "*"
+        arithmeticOperators.add(InfixExpression.Operator.DIVIDE);               // "/"
+        arithmeticOperators.add(InfixExpression.Operator.REMAINDER);            // "%"
+        arithmeticOperators.add(InfixExpression.Operator.PLUS);                 // "+"
+        arithmeticOperators.add(InfixExpression.Operator.MINUS);                // "-"
+        arithmeticOperators.add(InfixExpression.Operator.LEFT_SHIFT);           // "<<"
+        arithmeticOperators.add(InfixExpression.Operator.RIGHT_SHIFT_SIGNED);   //  ">>"
+        arithmeticOperators.add(InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED); // ">>>"
         typeTable = new HashMap<>();
         testNode = new Stack<>();
-        infixTests = new ArrayList<>(); 
+        infixTests = new ArrayList<>();
     }
 
-  
+
     @Override
     public boolean visit(SimpleName sn) {
         lookup(sn.getIdentifier(), sn);
-        
+
         String testMsg = "E(" + sn.getIdentifier() + ") = " + typeTable.get(sn);
         DynamicTest snTest = DynamicTest.dynamicTest(testMsg, () -> {
-        	Map<ASTNode,String> ttCopy = new HashMap<>(typeTable);
-        	assertEquals(ttCopy.get(sn), ttCopy.get(sn));
+            Map<ASTNode, String> ttCopy = new HashMap<>(typeTable);
+            assertEquals(ttCopy.get(sn), ttCopy.get(sn));
         });
-    	
+
         testNode.push(DynamicContainer.dynamicContainer("E |- " + sn + ":" + typeTable.get(sn), Stream.of(snTest)));
-        
+
         return false;
     }
 
@@ -76,32 +76,32 @@ public class TypeCheckerDynamicTestVisitor extends TypeCheckerAbstractVisitor {
         ASTNode lhs = ie.getLeftOperand();
         lhs.accept(this);
         String lType = typeTable.get(lhs);
-        
+
         ArrayList<DynamicNode> tests = new ArrayList<>();
         tests.add(testNode.pop());
-        
+
         ASTNode rhs = ie.getRightOperand();
         rhs.accept(this);
         String rType = typeTable.get(rhs);
-        
+
         tests.add(testNode.pop());
         tests.add(DynamicTest.dynamicTest(lType + "=" + rType, () -> assertEquals(lType, rType)));
-       
+
         // Should be in a separate method that returns the type for the expression
         if (lType.equals(INT) && lType.equals(rType)) {
-        	typeTable.put(ie, INT);
+            typeTable.put(ie, INT);
         }
-        
+
         testNode.push(DynamicContainer.dynamicContainer("E |- " + ie + ":" + typeTable.get(ie), tests.stream()));
         infixTests.add(DynamicContainer.dynamicContainer("E |- " + ie + ":" + typeTable.get(ie), tests.stream()));
-        
+
         return false;
     }
 
     private void lookup(String name, ASTNode node) {
         ArrayList<String> c = new ArrayList<>(context);
         c.add(name);
-        
+
         while (true) {
             if (symbolTable.containsKey(c)) {
                 typeTable.put(node, symbolTable.get(c));

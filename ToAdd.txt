@@ -1,0 +1,3 @@
+Remember to add
+1. Pom file because those idiots don't know what version of java to add
+2. All the symboltable module
