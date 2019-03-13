@@ -1,14 +1,5 @@
 package edu.byu.yc;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -16,10 +7,20 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+
+import edu.byu.yc.symboltable.QualifiedClassVisitor;
+import edu.byu.yc.symboltable.SymbolTable;
+import edu.byu.yc.symboltable.SymbolTableVisitor;
+
 /**
- * 
  * @author Peter Aldous <aldous@cs.byu.edu>
- * 
  */
 
 public class TypeChecker {
@@ -27,10 +28,10 @@ public class TypeChecker {
 
     /**
      * Expand directory names to their contained Java files.
-     * 
+     *
      * @param paths An array of file or directory names to be expanded.
      * @return A sequence of paths to Java files, either from paths or contained in
-     *         a directory specified by paths.
+     * a directory specified by paths.
      */
     private static ArrayList<String> expand(final String[] paths) {
         ArrayList<String> result = new ArrayList<>(Math.max(10, paths.length));
@@ -55,7 +56,7 @@ public class TypeChecker {
     /**
      * Parse all of the Java files in paths and return the concatenation of their
      * contents.
-     * 
+     *
      * @param paths A sequence of paths to Java files.
      * @return A single AST representing all file contents.
      */
@@ -75,7 +76,7 @@ public class TypeChecker {
 
     /**
      * Read the file at path and return its contents as a String.
-     * 
+     *
      * @param path The location of the file to be read.
      * @return The contents of the file as a String.
      */
@@ -90,7 +91,7 @@ public class TypeChecker {
 
     /**
      * Parse the given source.
-     * 
+     *
      * @param sourceString The contents of some set of Java files.
      * @return An ASTNode representing the entire program.
      */
@@ -106,27 +107,37 @@ public class TypeChecker {
 
     /**
      * Get the names of every identifier whose letters are all capitalized in node.
-     * 
+     *
      * @param node An AST to be analyzed.
      * @return The set of all identifiers in all caps contained in the AST.
      */
-    public static Map<List<String>, String> getSymbolTable(ASTNode node) {
-        final SymbolTableVisitor v = new SymbolTableVisitor();
+    public static Set<String> getAllCaps(ASTNode node) {
+        final NoAllCapsVisitor v = new NoAllCapsVisitor();
         node.accept(v);
-        return v.getSymbolTable();
+        return v.getAllCaps();
     }
 
-	public static Set<String> getAllCaps(ASTNode node) {
-		final NoAllCapsVisitor v = new NoAllCapsVisitor();
-		node.accept(v);
-		return v.getAllCaps();
-	}
-    
+    /**
+     * First, get all the class qualified names and then pass them to the symbolTableVisitor
+     *
+     * @param node ASTNode to be visited
+     * @return Symbol Table
+     */
+    public static SymbolTable createSymbolTable(ASTNode node) {
+
+        final QualifiedClassVisitor classVisitor = new QualifiedClassVisitor();
+        node.accept(classVisitor);
+        SymbolTable symbolTable = new SymbolTable(classVisitor.getSimpleNameToFullyQualifiedName());
+        final SymbolTableVisitor v = new SymbolTableVisitor(symbolTable);
+        node.accept(v);
+        return symbolTable;
+    }
+
     public static void main(String[] args) {
         ASTNode node = parseAll(expand(args));
 
-        Map<List<String>, String> st = getSymbolTable(node);
-        TypeCheckerVisitor v = new TypeCheckerVisitor(st);
-        node.accept(v);
+        createSymbolTable(node);
+
+
     }
 }
