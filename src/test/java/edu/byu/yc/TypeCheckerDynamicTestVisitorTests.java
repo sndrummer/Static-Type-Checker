@@ -25,7 +25,7 @@ public class TypeCheckerDynamicTestVisitorTests {
     private ArrayList<DynamicNode> infixTests;
     
 
-    @BeforeAll
+   /* @BeforeAll
     public void setup() {
         node = TypeChecker.parse(adderContents);
        
@@ -41,5 +41,5 @@ public class TypeCheckerDynamicTestVisitorTests {
 //    	return infixTests.stream();
     	return Stream.of(infixTests.get(1));
     	
-    }
+    }*/
 }

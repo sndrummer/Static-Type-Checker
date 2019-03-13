@@ -39,7 +39,7 @@ public class SymbolTableTests {
     private final String fieldsMethodsParams = TypeChecker.readFile(fieldsMethodsParamsFile.getPath());
 
     //Expected fully qualified name of the class
-    private final String packageFQN = "edu.byu.yc.tests";
+    private static final String PACKAGE_FQN = "edu.byu.yc.tests";
 
 
     /**
@@ -49,22 +49,22 @@ public class SymbolTableTests {
     @DisplayName("Test classExists")
     public void testClassExists() {
         SymbolTable fieldsSymbolTable = TypeChecker.createSymbolTable(TypeChecker.parse(fields));
-        assertTrue(fieldsSymbolTable.classExists(packageFQN + ".Fields"));
-        assertFalse(fieldsSymbolTable.classExists(packageFQN + ".MyClass"));
+        assertTrue(fieldsSymbolTable.classExists(PACKAGE_FQN + ".Fields"));
+        assertFalse(fieldsSymbolTable.classExists(PACKAGE_FQN + ".MyClass"));
 
         SymbolTable methodsSymbolTable = TypeChecker.createSymbolTable(TypeChecker.parse(methodsNoParams));
-        assertTrue(methodsSymbolTable.classExists(packageFQN + ".MethodsNoParams"));
-        assertFalse(methodsSymbolTable.classExists(packageFQN + ".Donkey"));
+        assertTrue(methodsSymbolTable.classExists(PACKAGE_FQN + ".MethodsNoParams"));
+        assertFalse(methodsSymbolTable.classExists(PACKAGE_FQN + ".Donkey"));
 
 
         SymbolTable methodsParamsSymbolTable = TypeChecker.createSymbolTable(TypeChecker.parse(methodsParams));
-        assertTrue(methodsParamsSymbolTable.classExists(packageFQN + ".MethodsParams"));
-        assertFalse(methodsSymbolTable.classExists(packageFQN + ".Donuts"));
+        assertTrue(methodsParamsSymbolTable.classExists(PACKAGE_FQN + ".MethodsParams"));
+        assertFalse(methodsSymbolTable.classExists(PACKAGE_FQN + ".Donuts"));
 
 
         SymbolTable fmpSymbolTable = TypeChecker.createSymbolTable(TypeChecker.parse(fieldsMethodsParams));
-        assertTrue(fmpSymbolTable.classExists(packageFQN + ".FieldsMethodsParams"));
-        assertFalse(methodsSymbolTable.classExists(packageFQN + ".Hello"));
+        assertTrue(fmpSymbolTable.classExists(PACKAGE_FQN + ".FieldsMethodsParams"));
+        assertFalse(methodsSymbolTable.classExists(PACKAGE_FQN + ".Hello"));
 
     }
 
@@ -74,7 +74,7 @@ public class SymbolTableTests {
     @Test
     @DisplayName("Test methodExists")
     public void testMethodExists() {
-        String methodClassFQN = packageFQN + ".MethodsNoParams";
+        String methodClassFQN = PACKAGE_FQN + ".MethodsNoParams";
         SymbolTable methodsSymbolTable = TypeChecker.createSymbolTable(TypeChecker.parse(methodsNoParams));
         assertTrue(methodsSymbolTable.methodExists(methodClassFQN, "hello"));
         assertTrue(methodsSymbolTable.methodExists(methodClassFQN, "getNumber"));
@@ -87,7 +87,7 @@ public class SymbolTableTests {
     @Test
     @DisplayName("Test fieldExists")
     public void testFieldExists() {
-        String fieldClassFQN = packageFQN + ".Fields";
+        String fieldClassFQN = PACKAGE_FQN + ".Fields";
         SymbolTable fieldsSymbolTable = TypeChecker.createSymbolTable(TypeChecker.parse(fields));
 
         assertTrue(fieldsSymbolTable.fieldExists(fieldClassFQN, "cheese"));
@@ -112,7 +112,7 @@ public class SymbolTableTests {
         SymbolTable symbolTable = TypeChecker.createSymbolTable(TypeChecker.parse(fields));
 
         //Refer to test-files/Fields.java
-        String fieldsFQN = packageFQN + ".Fields";
+        String fieldsFQN = PACKAGE_FQN + ".Fields";
         String fieldType1 = symbolTable.getFieldType(fieldsFQN, "cheese");
         String fieldType2 = symbolTable.getFieldType(fieldsFQN, "num");
         String fieldType3 = symbolTable.getFieldType(fieldsFQN, "fl");
@@ -132,7 +132,7 @@ public class SymbolTableTests {
     @Test
     @DisplayName("Test getMethodReturnType, Method Names/Return-Types in Symbol Table")
     public void testMethods() {
-        String methodClassFQN = packageFQN + ".MethodsNoParams";
+        String methodClassFQN = PACKAGE_FQN + ".MethodsNoParams";
         SymbolTable methodsSymbolTable = TypeChecker.createSymbolTable(
                 TypeChecker.parse(methodsNoParams));
 
@@ -156,7 +156,7 @@ public class SymbolTableTests {
     @Test
     @DisplayName("Test getParameterType, Parameter Names/Types in Symbol Table")
     public void testParameters() {
-        String methodClassFQN = packageFQN + ".MethodsParams";
+        String methodClassFQN = PACKAGE_FQN + ".MethodsParams";
         SymbolTable methodsSymbolTable = TypeChecker.createSymbolTable(
                 TypeChecker.parse(methodsParams));
 
@@ -189,6 +189,21 @@ public class SymbolTableTests {
         assertNotEquals("float", methodsSymbolTable.getParameterType(
                 methodClassFQN, "greeting", "timesListened"));
 
+    }
+
+    /**
+     * Test if parameterExists works correctly
+     */
+    @Test
+    @DisplayName("Test parameterExists")
+    public void testParameterExists() {
+
+        String methodClassFQN = PACKAGE_FQN + ".MethodsParams";
+        SymbolTable methodsSymbolTable = TypeChecker.createSymbolTable(
+                TypeChecker.parse(methodsParams));
+
+        assertTrue(methodsSymbolTable.parameterExists(methodClassFQN, "hello", "name"));
+        assertFalse(methodsSymbolTable.parameterExists(methodClassFQN, "hello", "names"));
     }
 
     /**

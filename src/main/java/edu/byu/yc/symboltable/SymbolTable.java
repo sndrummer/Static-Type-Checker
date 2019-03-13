@@ -82,7 +82,6 @@ public class SymbolTable implements ISymbolTable {
                 for (ASTNameType nameType: entry.getValue()) {
                     if (nameType.getName().equals(paramName)) return true;
                 }
-                return true;
             }
         }
         return false;
