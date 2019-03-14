@@ -1,4 +1,4 @@
-package edu.byu.yc.symboltable;
+package edu.byu.yc.typechecker.symboltable;
 
 /**
  * @author Samuel Nuttall

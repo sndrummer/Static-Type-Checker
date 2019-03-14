@@ -1,4 +1,4 @@
-package edu.byu.yc.typetable;
+package edu.byu.yc.typechecker.typetable;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -14,8 +14,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import edu.byu.yc.symboltable.SymbolTable;
-import edu.byu.yc.typechecker.MyTypeCheckerVisitor;
+import edu.byu.yc.typechecker.AbstractTypeCheckerVisitor;
+import edu.byu.yc.typechecker.symboltable.SymbolTable;
 
 /**
  * @author Samuel Nuttall
@@ -23,7 +23,7 @@ import edu.byu.yc.typechecker.MyTypeCheckerVisitor;
  * This visitor is to get the local context and resolve the variables used using both local and outside
  * context
  */
-public class TypeTableVisitor extends ASTVisitor {
+public class TypeTableVisitor extends AbstractTypeCheckerVisitor {
     private Logger logger = LoggerFactory.getLogger(TypeTableVisitor.class);
 
 
@@ -51,7 +51,7 @@ public class TypeTableVisitor extends ASTVisitor {
     private static final String NULL = "null";
 
     public TypeTableVisitor(SymbolTable symbolTable) {
-
+        super(symbolTable);
         this.symbolTable = symbolTable;
         addOperators();
         addPrimitives();
@@ -97,7 +97,10 @@ public class TypeTableVisitor extends ASTVisitor {
         while (parent != null) {
             if (parent instanceof MethodDeclaration) {
                 logger.debug("Parent is an instance of methodDeclaration");
-                symbolTable.methodExists()
+
+                //TODO you are here
+
+                //symbolTable.methodExists()
                 break;
             }
             parent = parent.getParent();

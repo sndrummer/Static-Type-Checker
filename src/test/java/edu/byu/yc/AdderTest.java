@@ -7,7 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-import edu.byu.yc.symboltable.SymbolTable;
+import edu.byu.yc.typechecker.symboltable.SymbolTable;
+import edu.byu.yc.typechecker.TypeChecker;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

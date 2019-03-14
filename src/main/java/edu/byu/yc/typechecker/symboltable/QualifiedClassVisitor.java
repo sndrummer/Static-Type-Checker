@@ -1,4 +1,4 @@
-package edu.byu.yc.symboltable;
+package edu.byu.yc.typechecker.symboltable;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;

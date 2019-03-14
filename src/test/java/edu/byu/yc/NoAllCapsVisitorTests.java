@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import edu.byu.yc.typechecker.TypeChecker;
+
 public class NoAllCapsVisitorTests {
 
     private final String root = System.getProperty("user.dir");

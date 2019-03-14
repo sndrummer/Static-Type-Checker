@@ -19,6 +19,8 @@ import org.junit.jupiter.api.DynamicTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.byu.yc.ref.TypeCheckerAbstractVisitor;
+
 public class TypeCheckerDynamicTestVisitor extends TypeCheckerAbstractVisitor {
     private Map<List<String>, String> symbolTable;
     private Map<ASTNode, String> typeTable;

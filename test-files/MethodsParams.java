@@ -13,7 +13,7 @@ public class MethodsParams {
 
     String greeting(int age, String myName, String yourName, String favoriteSong, int timesListened) {
 
-        String greeting1 = "Hello " + yourName + " my name is " + myName +". I am " + age + " years old";
+        String greeting1 = "Hello " + yourName + " my name is " + myName +". I am " + age + " years ref";
         String greeting2 = "My favorite song is " + favoriteSong + ". I must have listened to it " +
                 timesListened + " times!";
 

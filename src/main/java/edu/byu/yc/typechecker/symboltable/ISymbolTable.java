@@ -1,4 +1,4 @@
-package edu.byu.yc.symboltable;
+package edu.byu.yc.typechecker.symboltable;
 
 /**
  * Your symbol table visitor must visit an ASTNode and return an implementation

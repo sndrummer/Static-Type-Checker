@@ -1,4 +1,4 @@
-package edu.byu.yc.symboltable;
+package edu.byu.yc.typechecker.symboltable;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -12,39 +12,23 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.byu.yc.typechecker.AbstractTypeCheckerVisitor;
+
 
 /**
  * @author Samuel Nuttall
  *
  * An ASTNode visitor that creates a symbol table to be used by the Type Checker
  */
-public class SymbolTableVisitor extends ASTVisitor {
+public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
 
     private static Logger logger = LoggerFactory.getLogger(SymbolTableVisitor.class);
     private SymbolTable symbolTable;
     private String curClassFQN; // Current class being explored
 
     public SymbolTableVisitor(SymbolTable symbolTable) {
+        super(symbolTable);
         this.symbolTable = symbolTable;
-    }
-
-    /**
-     * Visit TypeDeclaration nodes once more to keep track of the current class being visited
-     *
-     * @param td TypeDeclaration Node being visited
-     * @return true to visit children
-     */
-    @Override
-    public boolean visit(TypeDeclaration td) {
-
-        String classSimpleName = td.getName().toString();
-        logger.info("Class name {}", classSimpleName);
-        curClassFQN = symbolTable.getClassSimpleToQualifiedName().get(classSimpleName);
-
-        if (curClassFQN == null)
-            logger.error("CLASS {} was not found", classSimpleName);
-
-        return true;
     }
 
     /**

@@ -13,6 +13,8 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import edu.byu.yc.typechecker.TypeChecker;
+
 @TestInstance(Lifecycle.PER_CLASS)
 public class TypeCheckerDynamicTestVisitorTests {
 

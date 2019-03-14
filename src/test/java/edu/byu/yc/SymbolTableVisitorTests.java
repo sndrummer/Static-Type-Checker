@@ -16,6 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import edu.byu.yc.ref.TypeCheckerAbstractVisitor;
+import edu.byu.yc.ref.TypeCheckerVisitor;
+import edu.byu.yc.typechecker.TypeChecker;
+
 @TestInstance(Lifecycle.PER_CLASS)
 public class SymbolTableVisitorTests {
 

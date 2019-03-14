@@ -1,4 +1,4 @@
-package edu.byu.yc.symboltable;
+package edu.byu.yc.typechecker.symboltable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

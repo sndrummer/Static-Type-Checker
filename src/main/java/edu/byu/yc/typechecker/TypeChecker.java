@@ -1,4 +1,4 @@
-package edu.byu.yc;
+package edu.byu.yc.typechecker;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -16,10 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.byu.yc.symboltable.QualifiedClassVisitor;
-import edu.byu.yc.symboltable.SymbolTable;
-import edu.byu.yc.symboltable.SymbolTableVisitor;
-import edu.byu.yc.typechecker.MyTypeCheckerVisitor;
+import edu.byu.yc.ref.AltSymbolTableVisitor;
+import edu.byu.yc.ref.NoAllCapsVisitor;
+import edu.byu.yc.typechecker.symboltable.QualifiedClassVisitor;
+import edu.byu.yc.typechecker.symboltable.SymbolTable;
+import edu.byu.yc.typechecker.symboltable.SymbolTableVisitor;
+import edu.byu.yc.typechecker.typetable.TypeTableVisitor;
 
 /**
  * @author Peter Aldous <aldous@cs.byu.edu>
@@ -146,7 +148,7 @@ public class TypeChecker {
 
         SymbolTable symbolTable = createSymbolTable(node);
 
-        MyTypeCheckerVisitor typeCheckerVisitor = new MyTypeCheckerVisitor(symbolTable);
+        TypeTableVisitor typeCheckerVisitor = new TypeTableVisitor(symbolTable);
         node.accept(typeCheckerVisitor);
 
 //        Map<List<String>, String> st = getSymbolTable(node);
