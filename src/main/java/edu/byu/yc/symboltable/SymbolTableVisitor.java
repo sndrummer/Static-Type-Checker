@@ -61,6 +61,7 @@ public class SymbolTableVisitor extends ASTVisitor {
             fieldName = fragment.getName().toString();
         }
 
+        //AST nameType binding
         ASTNameType fieldNameType = new ASTNameType(fieldName, fd.getType().toString());
 
         logger.info("Adding new field {}", fieldNameType);

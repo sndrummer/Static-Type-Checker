@@ -12,12 +12,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import edu.byu.yc.symboltable.QualifiedClassVisitor;
 import edu.byu.yc.symboltable.SymbolTable;
 import edu.byu.yc.symboltable.SymbolTableVisitor;
+import edu.byu.yc.typechecker.MyTypeCheckerVisitor;
 
 /**
  * @author Peter Aldous <aldous@cs.byu.edu>
@@ -133,10 +135,23 @@ public class TypeChecker {
         return symbolTable;
     }
 
+    public static Map<List<String>, String> getSymbolTable(ASTNode node) {
+        final AltSymbolTableVisitor v = new AltSymbolTableVisitor();
+        node.accept(v);
+        return v.getSymbolTable();
+    }
+
     public static void main(String[] args) {
         ASTNode node = parseAll(expand(args));
 
-        createSymbolTable(node);
+        SymbolTable symbolTable = createSymbolTable(node);
+
+        MyTypeCheckerVisitor typeCheckerVisitor = new MyTypeCheckerVisitor(symbolTable);
+        node.accept(typeCheckerVisitor);
+
+//        Map<List<String>, String> st = getSymbolTable(node);
+//        TypeCheckerVisitor v = new TypeCheckerVisitor(st);
+//        node.accept(v);
 
 
     }

@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
  * @author
  *
  */
-public class SymbolTableVisitor extends TypeCheckerAbstractVisitor {
-    private Logger logger = LoggerFactory.getLogger(SymbolTableVisitor.class);
+public class AltSymbolTableVisitor extends TypeCheckerAbstractVisitor {
+    private Logger logger = LoggerFactory.getLogger(AltSymbolTableVisitor.class);
     private Map<List<String>, String> table;
 
-    public SymbolTableVisitor() {
+    public AltSymbolTableVisitor() {
         table = new HashMap<>();
         context = new ArrayList<>();
     }

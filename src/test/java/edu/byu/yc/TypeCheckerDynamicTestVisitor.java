@@ -92,6 +92,7 @@ public class TypeCheckerDynamicTestVisitor extends TypeCheckerAbstractVisitor {
             typeTable.put(ie, INT);
         }
 
+
         testNode.push(DynamicContainer.dynamicContainer("E |- " + ie + ":" + typeTable.get(ie), tests.stream()));
         infixTests.add(DynamicContainer.dynamicContainer("E |- " + ie + ":" + typeTable.get(ie), tests.stream()));
 

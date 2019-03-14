@@ -17,15 +17,21 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 public class TypeCheckerDynamicTestVisitorTests {
 
     private final String root = System.getProperty("user.dir");
-    private final String testfile = System.getProperty("testfile");
-    private final File adderFile = new File(new File(root, "test-files"), testfile);
+    private final String testfile = System.getProperty("Adder.java");
+    //private final File adderFile = new File(new File(root, "test-files"), testfile);
+
+
+
+    private final File adderFile = new File(new File(root, "test-files"), "Adder.java");
     private final String adderContents = TypeChecker.readFile(adderFile.getPath());
+
+
 
     private ASTNode node;
     private ArrayList<DynamicNode> infixTests;
     
 
-   /* @BeforeAll
+    @BeforeAll
     public void setup() {
         node = TypeChecker.parse(adderContents);
        
@@ -41,5 +47,5 @@ public class TypeCheckerDynamicTestVisitorTests {
 //    	return infixTests.stream();
     	return Stream.of(infixTests.get(1));
     	
-    }*/
+    }
 }

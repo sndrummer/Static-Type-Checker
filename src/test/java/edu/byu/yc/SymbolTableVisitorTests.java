@@ -19,7 +19,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 public class SymbolTableVisitorTests {
 
-    /*private final String root = System.getProperty("user.dir");
+    private final String root = System.getProperty("user.dir");
     private final File adderFile = new File(new File(root, "test-files"), "Arithmetic.java");
     private final String adderContents = TypeChecker.readFile(adderFile.getPath());
 
@@ -38,6 +38,9 @@ public class SymbolTableVisitorTests {
         node.accept(new ASTVisitor() {
             @Override
             public boolean visit(InfixExpression ie) {
+                System.out.println("!!!!!!!!!!!!!!!!!!!ie: " + ie);
+                System.out.println("left: " + ie.getLeftOperand());
+                System.out.println("Right: " + ie.getRightOperand());
                 if (addRight == null) {
                     addRight = ie;
                 } else {
@@ -68,7 +71,7 @@ public class SymbolTableVisitorTests {
         node.accept(v);
         typeTable = v.getTypeTable();
     }
-    
+
     @Test
     @DisplayName("Ensure that fields' types are correct")
     public void test_Field_Types() {
@@ -82,10 +85,10 @@ public class SymbolTableVisitorTests {
     public void test_Adder_addRight() {
         assertEquals("int", typeTable.get(addRight));
     }
-    
+
     @Test
     @DisplayName("Make sure int+bool fails")
     public void test_Adder_addWrong() {
         assertEquals(TypeCheckerAbstractVisitor.UNKNOWN_TYPE, typeTable.get(addWrong));
-    }*/
+    }
 }
