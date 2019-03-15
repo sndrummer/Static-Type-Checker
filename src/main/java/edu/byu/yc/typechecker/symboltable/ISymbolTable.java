@@ -30,12 +30,18 @@ public interface ISymbolTable {
     public String getParameterType(String classFQN, String methodName,
                                    String paramName);
 
+    public String getLocalVariableType(String classFQN, String methodName,
+                                   String localVariableName);
+
     public boolean classExists(String classFQN);
 
     public boolean methodExists(String classFQN, String methodName);
 
     public boolean parameterExists(String classFQN, String methodName,
                                    String paramName);
+
+    public boolean localVariableExists(String classFQN, String methodName,
+                                   String localVariableName);
 
     public boolean fieldExists(String classFQN, String fieldName);
 

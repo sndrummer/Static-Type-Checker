@@ -17,8 +17,9 @@ public class ClassFieldsMethodsParams {
 
     private String classFQN;
 
-    private List<ASTNameType> fields;
-    private Map<ASTNameType, List<ASTNameType>> methodParamsMap;
+    private List<ASTNameType> fields = new ArrayList<>();
+    private Map<ASTNameType, List<ASTNameType>> methodParamsMap = new HashMap<>();
+    private Map<ASTNameType, List<ASTNameType>> localVariablesMap = new HashMap<>();
 
     /**
      * Constructor for the class fields, methods, and parameters
@@ -27,10 +28,6 @@ public class ClassFieldsMethodsParams {
      */
     public ClassFieldsMethodsParams(String classFQN) {
         this.classFQN = classFQN;
-        fields = new ArrayList<>();
-
-        methodParamsMap = new HashMap<>();
-
     }
 
     /**
@@ -64,6 +61,24 @@ public class ClassFieldsMethodsParams {
     }
 
 
+    private String getMethodPropertyByName(String methodName, String propName, Map<ASTNameType,
+            List<ASTNameType>> methodMap) {
+        String type = null;
+        List<ASTNameType> params = null;
+        for (Map.Entry<ASTNameType, List<ASTNameType>> entry : methodMap.entrySet()) {
+            if (entry.getKey().getName().equals(methodName))
+                params = entry.getValue();
+        }
+
+        if (params == null) return null;
+        for (ASTNameType nameType : params) {
+            if (nameType.getName().equals(propName))
+                type = nameType.getType();
+        }
+        return type;
+    }
+
+
     /**
      * Returns the type of the parameter that matches the given method name and parameter name
      *
@@ -72,19 +87,11 @@ public class ClassFieldsMethodsParams {
      * @return String representation of the type of the parameter
      */
     public String getParamTypeByName(String methodName, String paramName) {
-        String type = null;
-        List<ASTNameType> params = null;
-        for (Map.Entry<ASTNameType, List<ASTNameType>> entry : methodParamsMap.entrySet()) {
-            if (entry.getKey().getName().equals(methodName))
-                params = entry.getValue();
-        }
+        return getMethodPropertyByName(methodName, paramName, methodParamsMap);
+    }
 
-        if (params == null) return null;
-        for (ASTNameType nameType : params) {
-            if (nameType.getName().equals(paramName))
-                type = nameType.getType();
-        }
-        return type;
+    public String getLocalVariableTypeByName(String methodName, String varName) {
+        return getMethodPropertyByName(methodName, methodName, localVariablesMap);
     }
 
     public String getClassFQN() {
@@ -103,14 +110,20 @@ public class ClassFieldsMethodsParams {
         fields.add(fieldNameTypes);
     }
 
-    public void addMethod(ASTNameType methodNameType, List<ASTNameType> paramNameTypes) {
+    public void addMethod(ASTNameType methodNameType, List<ASTNameType> paramNameTypes,
+                          List<ASTNameType> localVariables) {
         methodParamsMap.put(methodNameType, paramNameTypes);
+    }
+
+    public Map<ASTNameType, List<ASTNameType>> getLocalVariablesMap() {
+        return localVariablesMap;
     }
 
     @Override
     public String toString() {
         return "\tClassFQN='" + classFQN + '\'' +
                 ", \n\tFields=" + fields +
-                ", \n\tMethodParams=" + methodParamsMap;
+                ", \n\tMethodParams=" + methodParamsMap +
+                ", \n\tLocalVariables=" + localVariablesMap;
     }
 }

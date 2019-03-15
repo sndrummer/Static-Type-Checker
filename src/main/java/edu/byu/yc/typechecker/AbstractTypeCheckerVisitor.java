@@ -1,6 +1,7 @@
 package edu.byu.yc.typechecker;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ public class AbstractTypeCheckerVisitor extends ASTVisitor {
     private static Logger logger = LoggerFactory.getLogger(AbstractTypeCheckerVisitor.class);
     private SymbolTable symbolTable;
     private String curClassFQN; // Current class being explored
+    private String curMethodName; // Current class being explored
 
     public AbstractTypeCheckerVisitor(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
@@ -39,4 +41,30 @@ public class AbstractTypeCheckerVisitor extends ASTVisitor {
         return true;
     }
 
+
+    @Override
+    public boolean visit(MethodDeclaration md) {
+        setCurMethodName(md.getName().toString());
+        return true;
+    }
+    @Override
+    public void endVisit(MethodDeclaration node) {
+        setCurMethodName(null);
+    }
+
+    public String getCurClassFQN() {
+        return curClassFQN;
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+
+    public String getCurMethodName() {
+        return curMethodName;
+    }
+
+    public void setCurMethodName(String curMethodName) {
+        this.curMethodName = curMethodName;
+    }
 }

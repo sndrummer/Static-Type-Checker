@@ -1,4 +1,3 @@
-/*
 package edu.byu.yc.ref;
 
 import java.util.ArrayList;
@@ -47,30 +46,30 @@ public class TypeCheckerVisitor extends TypeCheckerAbstractVisitor {
 
     @Override
     public boolean visit(InfixExpression ie) {
-        typeTable.put(ie, UNKNOWN_TYPE);
-        if (!ie.getOperator().equals(InfixExpression.Operator.PLUS)) {
-            logger.error("unsupported operation: {}", ie.getOperator());
-            return false;
-        }
-        ASTNode lhs = ie.getLeftOperand();
-        lhs.accept(this);
-        String lType = typeTable.get(lhs);
-        ASTNode rhs = ie.getRightOperand();
-        if (!isPrimitive(lType)) {
-            logger.error("Tried to add a non-primitive type: {}", lType);
-            return false;
-        }
-        if (!lType.equals(INT)) {
-            logger.error("Tried to add a non-numeric type: {}", lType);
-            return false;
-        }
-        rhs.accept(this);
-        String rType = typeTable.get(rhs);
-        if (!rType.equals(INT)) {
-            logger.error("Tried to add a non-numeric type: {}", rType);
-            return false;
-        }
-        typeTable.put(ie, INT);
+//        typeTable.put(ie, UNKNOWN_TYPE);
+//        if (!ie.getOperator().equals(InfixExpression.Operator.PLUS)) {
+//            logger.error("unsupported operation: {}", ie.getOperator());
+//            return false;
+//        }
+//        ASTNode lhs = ie.getLeftOperand();
+//        lhs.accept(this);
+//        String lType = typeTable.get(lhs);
+//        ASTNode rhs = ie.getRightOperand();
+//        if (!isPrimitive(lType)) {
+//            logger.error("Tried to add a non-primitive type: {}", lType);
+//            return false;
+//        }
+//        if (!lType.equals(INT)) {
+//            logger.error("Tried to add a non-numeric type: {}", lType);
+//            return false;
+//        }
+//        rhs.accept(this);
+//        String rType = typeTable.get(rhs);
+//        if (!rType.equals(INT)) {
+//            logger.error("Tried to add a non-numeric type: {}", rType);
+//            return false;
+//        }
+//        typeTable.put(ie, INT);
         return false;
     }
 
@@ -104,4 +103,3 @@ public class TypeCheckerVisitor extends TypeCheckerAbstractVisitor {
     }
 
 }
-*/

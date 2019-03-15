@@ -1,4 +1,4 @@
-package edu.byu.yc;
+package edu.byu.yc.typechecker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

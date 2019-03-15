@@ -1,34 +1,33 @@
 package edu.byu.yc.typechecker.symboltable;
 
-import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.byu.yc.typechecker.ASTUtilities;
 import edu.byu.yc.typechecker.AbstractTypeCheckerVisitor;
 
 
 /**
  * @author Samuel Nuttall
- *
+ * <p>
  * An ASTNode visitor that creates a symbol table to be used by the Type Checker
  */
 public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
 
     private static Logger logger = LoggerFactory.getLogger(SymbolTableVisitor.class);
-    private SymbolTable symbolTable;
-    private String curClassFQN; // Current class being explored
 
     public SymbolTableVisitor(SymbolTable symbolTable) {
         super(symbolTable);
-        this.symbolTable = symbolTable;
+        //this.symbolTable = symbolTable;
     }
 
     /**
@@ -39,17 +38,14 @@ public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
      */
     @Override
     public boolean visit(FieldDeclaration fd) {
-        String fieldName = null;
-        if (fd.fragments().get(0) instanceof VariableDeclarationFragment) {
-            VariableDeclarationFragment fragment = (VariableDeclarationFragment) fd.fragments().get(0);
-            fieldName = fragment.getName().toString();
-        }
+        String fieldName = ASTUtilities.getFieldDeclarationName(fd);
 
         //AST nameType binding
         ASTNameType fieldNameType = new ASTNameType(fieldName, fd.getType().toString());
 
         logger.info("Adding new field {}", fieldNameType);
-        symbolTable.addField(curClassFQN, fieldNameType);
+
+        getSymbolTable().addField(getCurClassFQN(), fieldNameType);
         return true;
     }
 
@@ -63,12 +59,15 @@ public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
     @SuppressWarnings("unchecked")
     @Override
     public boolean visit(MethodDeclaration md) {
+
         String methodName = md.getName().toString();
         String methodType = md.getReturnType2().toString();
+        setCurMethodName(methodName);
 
         ASTNameType method = new ASTNameType(methodName, methodType);
 
         List<ASTNameType> params = new ArrayList<>();
+        List<ASTNameType> localVariables = new ArrayList<>();
         if (!md.parameters().isEmpty() && md.parameters().get(0) instanceof SingleVariableDeclaration) {
             List paramDeclarations = md.parameters();
 
@@ -80,8 +79,24 @@ public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
             }
         }
 
-        logger.info("Adding new method {} {}", method, params);
-        symbolTable.addMethod(curClassFQN, method, params);
+        List<ASTNode> statements = md.getBody().statements();
+
+        for (ASTNode statement : statements) {
+            if (statement instanceof VariableDeclarationStatement) {
+                VariableDeclarationStatement vd = ((VariableDeclarationStatement) statement);
+
+                if (vd.fragments().get(0) instanceof VariableDeclarationFragment) {
+                    VariableDeclarationFragment fragment = (VariableDeclarationFragment) vd.fragments().get(0);
+                    String variableName = fragment.getName().toString();
+
+                    ASTNameType localVariable = new ASTNameType(variableName, vd.getType().toString());
+                    localVariables.add(localVariable);
+                }
+            }
+        }
+
+        logger.info("Adding new method {} {} {}", method, params, localVariables);
+        getSymbolTable().addMethod(getCurClassFQN(), method, params, localVariables);
         return true;
     }
 

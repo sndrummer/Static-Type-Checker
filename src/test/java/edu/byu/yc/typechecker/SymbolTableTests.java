@@ -1,4 +1,4 @@
-package edu.byu.yc;
+package edu.byu.yc.typechecker;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 import edu.byu.yc.typechecker.symboltable.SymbolTable;
-import edu.byu.yc.typechecker.TypeChecker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

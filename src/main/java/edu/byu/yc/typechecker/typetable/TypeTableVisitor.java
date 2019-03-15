@@ -1,11 +1,12 @@
 package edu.byu.yc.typechecker.typetable;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.SimpleName;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,12 +15,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.byu.yc.typechecker.ASTUtilities;
 import edu.byu.yc.typechecker.AbstractTypeCheckerVisitor;
 import edu.byu.yc.typechecker.symboltable.SymbolTable;
 
 /**
  * @author Samuel Nuttall
- *
+ * <p>
  * This visitor is to get the local context and resolve the variables used using both local and outside
  * context
  */
@@ -27,12 +29,10 @@ public class TypeTableVisitor extends AbstractTypeCheckerVisitor {
     private Logger logger = LoggerFactory.getLogger(TypeTableVisitor.class);
 
 
-    private SymbolTable symbolTable;
-    private Map<ASTNode, String> typeTable = new HashMap<>(); //We'll see what this is used for?
+    private Map<ASTNode, String> typeTable = new HashMap<>(); //Assign nodes to the type that they are?
     private Set<String> primitiveTypes = new HashSet<>();
     private Set<InfixExpression.Operator> arithmeticOperators = new HashSet<>();
     private static final String UNKNOWN_TYPE = "$UNKNOWN";
-
 
     //Numeric primitives
     private static final String SHORT = "short ";
@@ -52,7 +52,6 @@ public class TypeTableVisitor extends AbstractTypeCheckerVisitor {
 
     public TypeTableVisitor(SymbolTable symbolTable) {
         super(symbolTable);
-        this.symbolTable = symbolTable;
         addOperators();
         addPrimitives();
     }
@@ -84,31 +83,69 @@ public class TypeTableVisitor extends AbstractTypeCheckerVisitor {
 
     @Override
     public boolean visit(SimpleName sn) {
-        lookup(sn.getIdentifier(), sn);
+        if (getCurClassFQN() != null)
+            lookup(sn.getIdentifier(), sn);
         return false;
     }
 
 
+    /**
+     * Visit the infix expression and resolve the type, make sure the operands are type compatible
+     *
+     * @param ie infix expression
+     * @return false to stop exploring children and true to continue exploring children
+     */
     @Override
     public boolean visit(InfixExpression ie) {
 
         //get the parent of the infix expression
-        ASTNode parent = ie.getParent();
-        while (parent != null) {
-            if (parent instanceof MethodDeclaration) {
-                logger.debug("Parent is an instance of methodDeclaration");
-
-                //TODO you are here
-
-                //symbolTable.methodExists()
-                break;
-            }
+        ASTNode parent = ie;
+        boolean parentFound = false;
+        while (!parentFound && parent != null) {
             parent = parent.getParent();
+            if (parent instanceof MethodDeclaration) {
+
+                MethodDeclaration md = (MethodDeclaration) parent;
+                String methodName = md.getName().toString();
+
+                boolean methodExists = getSymbolTable().methodExists(getCurClassFQN(), methodName);
+                logger.debug("Method Exists? {}", methodExists);
+                parentFound = methodExists;
+            } else if (parent instanceof FieldDeclaration) {
+                FieldDeclaration fd = (FieldDeclaration) parent;
+
+                String fieldName = ASTUtilities.getFieldDeclarationName(fd);
+
+                boolean fieldExists = getSymbolTable().fieldExists(getCurClassFQN(), fieldName);
+                logger.debug("Field Exists? {}", fieldExists);
+                parentFound = fieldExists;
+            }
+        }
+
+        if (!parentFound) {
+            logger.error("Unable to find context for infix expression {}", ie);
+            return false;
         }
 
 
-        typeTable.put(ie, UNKNOWN_TYPE);
-        if (!ie.getOperator().equals(InfixExpression.Operator.PLUS)) {
+        //The hierarchy is short -> int --> float -->
+        // WIDENING!!!! long to float is considered widening!!!!!!
+
+        //HERE IS THE WIDENING RULES HIERARCHY
+
+        //TODO IMPLEMENT THE WIDENING VALUES
+        /*
+        short s = 1;
+        short a = 44;
+        int shortToInt = s + a;
+        double floatToDouble = 2F + 2F;
+        float longToFloat = 2l + 2l;
+        float intToFloat = 2 + 2;
+        double mixedToDouble = 4f + 2l;
+        */
+
+        typeTable.put(ie, UNKNOWN_TYPE); // init as unknown type until resolved
+        if (!arithmeticOperators.contains(ie.getOperator())) {
             logger.error("unsupported operation: {}", ie.getOperator());
             return false;
         }
@@ -118,6 +155,7 @@ public class TypeTableVisitor extends AbstractTypeCheckerVisitor {
         ASTNode rhs = ie.getRightOperand();
         if (!isPrimitive(lType)) {
             logger.error("Tried to add a non-primitive type: {}", lType);
+            logger.error("NODE: {}", lhs);
             return false;
         }
         if (!lType.equals(INT)) {
@@ -134,6 +172,10 @@ public class TypeTableVisitor extends AbstractTypeCheckerVisitor {
         return false;
     }
 
+    public boolean isOperationCompatible() {
+        return false;
+    }
+
     private boolean isPrimitive(String t) {
         return primitiveTypes.contains(t);
     }
@@ -146,25 +188,57 @@ public class TypeTableVisitor extends AbstractTypeCheckerVisitor {
      * @param node
      */
     private void lookup(String name, ASTNode node) {
+        logger.info("HERE IS THE NAME: {}", name);
+
+//        logger.info("HERE IS THE Current context: {}", getCurClassFQN());
+//        logger.info("Symbol Table: {}", getSymbolTable());
+
+        // Check if it is a field
+        String type = UNKNOWN_TYPE;
+        if (isField(name)) {
+            type = getSymbolTable().getFieldType(getCurClassFQN(), name);
+            typeTable.put(node, type);
+        } else if (isMethod(name)) {
+            type = getSymbolTable().getFieldType(getCurClassFQN(), name);
+            typeTable.put(node, type);
+        } else if (getCurMethodName() != null) {
+            logger.debug("The Current method name is: {}", getCurMethodName());
 
 
-       /* context.add(name);
-        while (true) {
-            if (symbolTable.containsKey(context)) { //check if it contains name?
-                typeTable.put(node, symbolTable.get(context));
-                return;
-            }
-            if (context.size() > 1) {
-                logger.debug("Removing from {}:", context);
-                int last = context.size() - 2;
-                context.remove(last);
-                logger.debug("Removed: {}", context);
-            } else {
-                logger.debug("Could not find type {} in context {}", name, context);
-                typeTable.put(node, UNKNOWN_TYPE);
-                return;
-            }
-        }*/
+        }
+
+
+//        boolean isField = getSymbolTable().fieldExists(getCurClassFQN(), name);
+//        boolean isMethod = getSymbolTable().methodExists(getCurClassFQN(), name);
+//        logger.info("Is a field?: {}", isField);
+//        logger.info("Is method?: {}", isMethod);
+
+        //if (getSymbolTable().)
+//        context.add(name);
+//            while (true) {
+//                if (symbolTable.containsKey(context)) { //check if it contains name?
+//                    typeTable.put(node, symbolTable.get(context));
+//                    return;
+//                }
+//                if (context.size() > 1) {
+//                    logger.debug("Removing from {}:", context);
+//                    int last = context.size() - 2;
+//                    context.remove(last);
+//                    logger.debug("Removed: {}", context);
+//                } else {
+//                    logger.debug("Could not find type {} in context {}", name, context);
+//                    typeTable.put(node, UNKNOWN_TYPE);
+//                    return;
+//                }
+//        }
+    }
+
+    private boolean isField(String name) {
+        return getSymbolTable().fieldExists(getCurClassFQN(), name);
+    }
+
+    private boolean isMethod(String name) {
+        return getSymbolTable().methodExists(getCurClassFQN(), name);
     }
 
     public Map<ASTNode, String> getTypeTable() {

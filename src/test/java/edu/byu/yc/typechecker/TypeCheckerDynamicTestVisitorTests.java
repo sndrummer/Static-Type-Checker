@@ -1,4 +1,4 @@
-package edu.byu.yc;
+package edu.byu.yc.typechecker;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,8 +12,6 @@ import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-
-import edu.byu.yc.typechecker.TypeChecker;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class TypeCheckerDynamicTestVisitorTests {

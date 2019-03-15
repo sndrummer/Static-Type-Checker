@@ -1,4 +1,4 @@
-package edu.byu.yc;
+package edu.byu.yc.typechecker;
 
 /**
  * @author Samuel Nuttall

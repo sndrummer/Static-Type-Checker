@@ -7,6 +7,8 @@ import java.util.ArrayList;
  */
 public class TestCrap {
 
+    private static int j = 2 + 2;
+
     public static void main(String[] args) {
 
         int cheese = 5;                    //0000 0000 0101
@@ -20,6 +22,19 @@ public class TestCrap {
         double e = 15D + 13D;
         long longV = 12l + 13l;
 
+
+        //The hierarchy is short -> int --> float -->
+        // WIDENING!!!! long to float is considered widening!!!!!!
+
+        //HERE IS THE WIDENING RULES HIERARCHY
+
+//        short s = 1;
+//        short a = 44;
+//        int shortToInt = s + a;
+//        double floatToDouble = 2F + 2F;
+//        float longToFloat = 2l + 2l;
+//        float intToFloat = 2 + 2;
+//        double mixedToDouble = 4f + 2l;
 
         System.out.println(c);
 
