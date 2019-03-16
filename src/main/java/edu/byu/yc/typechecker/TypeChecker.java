@@ -21,7 +21,7 @@ import edu.byu.yc.ref.NoAllCapsVisitor;
 import edu.byu.yc.typechecker.symboltable.QualifiedClassVisitor;
 import edu.byu.yc.typechecker.symboltable.SymbolTable;
 import edu.byu.yc.typechecker.symboltable.SymbolTableVisitor;
-import edu.byu.yc.typechecker.typetable.TypeTableVisitor;
+import edu.byu.yc.typechecker.typetable.TypeCheckerVisitor;
 
 /**
  * @author Peter Aldous <aldous@cs.byu.edu>
@@ -148,7 +148,7 @@ public class TypeChecker {
 
         SymbolTable symbolTable = createSymbolTable(node);
 
-        TypeTableVisitor typeCheckerVisitor = new TypeTableVisitor(symbolTable);
+        TypeCheckerVisitor typeCheckerVisitor = new TypeCheckerVisitor(symbolTable);
         node.accept(typeCheckerVisitor);
 
 //        Map<List<String>, String> st = getSymbolTable(node);

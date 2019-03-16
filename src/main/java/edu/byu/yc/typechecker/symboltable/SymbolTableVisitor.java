@@ -43,7 +43,7 @@ public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
         //AST nameType binding
         ASTNameType fieldNameType = new ASTNameType(fieldName, fd.getType().toString());
 
-        logger.info("Adding new field {}", fieldNameType);
+        //logger.info("Adding new field {}", fieldNameType);
 
         getSymbolTable().addField(getCurClassFQN(), fieldNameType);
         return true;
@@ -95,7 +95,7 @@ public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
             }
         }
 
-        logger.info("Adding new method {} {} {}", method, params, localVariables);
+        //logger.info("Adding new method {} {} {}", method, params, localVariables);
         getSymbolTable().addMethod(getCurClassFQN(), method, params, localVariables);
         return true;
     }

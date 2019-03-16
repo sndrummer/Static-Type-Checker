@@ -32,7 +32,7 @@ public class AbstractTypeCheckerVisitor extends ASTVisitor {
     public boolean visit(TypeDeclaration td) {
 
         String classSimpleName = td.getName().toString();
-        logger.info("Class name {}", classSimpleName);
+        //logger.info("Class name {}", classSimpleName);
         curClassFQN = symbolTable.getClassSimpleToQualifiedName().get(classSimpleName);
 
         if (curClassFQN == null)

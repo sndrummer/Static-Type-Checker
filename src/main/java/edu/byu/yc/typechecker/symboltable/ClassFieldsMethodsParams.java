@@ -1,9 +1,13 @@
 package edu.byu.yc.typechecker.symboltable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 
 /**
@@ -14,6 +18,8 @@ import java.util.Map;
  * a class that has been visited by the symbol table visitor.
  */
 public class ClassFieldsMethodsParams {
+
+    private Logger logger = LoggerFactory.getLogger(ClassFieldsMethodsParams.class);
 
     private String classFQN;
 
@@ -69,12 +75,13 @@ public class ClassFieldsMethodsParams {
             if (entry.getKey().getName().equals(methodName))
                 params = entry.getValue();
         }
-
+        //logger.info("TYPE!!!!!!!!!!!!!!!!!! RETURNING: {}", type);
         if (params == null) return null;
         for (ASTNameType nameType : params) {
             if (nameType.getName().equals(propName))
                 type = nameType.getType();
         }
+        //logger.info("Querying propName {}, RETURNING: {}", propName, type);
         return type;
     }
 
@@ -91,7 +98,7 @@ public class ClassFieldsMethodsParams {
     }
 
     public String getLocalVariableTypeByName(String methodName, String varName) {
-        return getMethodPropertyByName(methodName, methodName, localVariablesMap);
+        return getMethodPropertyByName(methodName, varName, localVariablesMap);
     }
 
     public String getClassFQN() {
@@ -113,6 +120,7 @@ public class ClassFieldsMethodsParams {
     public void addMethod(ASTNameType methodNameType, List<ASTNameType> paramNameTypes,
                           List<ASTNameType> localVariables) {
         methodParamsMap.put(methodNameType, paramNameTypes);
+        localVariablesMap.put(methodNameType, localVariables);
     }
 
     public Map<ASTNameType, List<ASTNameType>> getLocalVariablesMap() {
