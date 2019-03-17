@@ -1,4 +1,4 @@
-package edu.byu.yc.typechecker.typetable;
+package edu.byu.yc.typechecker;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
@@ -7,75 +7,51 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
+
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.junit.jupiter.api.DynamicContainer;
-import org.junit.jupiter.api.DynamicNode;
-import org.junit.jupiter.api.DynamicTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.stream.Stream;
 
-import edu.byu.yc.typechecker.ASTUtilities;
-import edu.byu.yc.typechecker.AbstractTypeCheckerVisitor;
 import edu.byu.yc.typechecker.symboltable.ASTNameType;
 import edu.byu.yc.typechecker.symboltable.SymbolTable;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /**
  * @author Samuel Nuttall
+ * <p>
+ * This visitor uses the symbol table to construct a typeTable and check the types of variables and
+ * infix expressions that are used
  */
-public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
-
+public class TypeCheckerVisitor extends AbstractTypeCheckerVisitor {
     private Logger logger = LoggerFactory.getLogger(TypeCheckerVisitor.class);
-
-
     private Map<ASTNode, String> typeTable = new HashMap<>(); //Assign nodes to the type that they are?
-    private Set<String> primitiveTypes = new HashSet<>();
-    private ExpressionEvaluatorTest expressionEvaluatorTest = new ExpressionEvaluatorTest(this);
+    private ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(this);
 
     private static final String UNKNOWN_TYPE = "$UNKNOWN";
 
-    private Stack<DynamicNode> infixTestNode = new Stack<>();
-    private Stack<DynamicNode> testNodeType = new Stack<>();
-    //private Stack<DynamicNode> infixTestNode = new Stack<>();
-    private ArrayList<DynamicNode> infixTests = new ArrayList<>();
 
-
-    public TypeCheckerDynamicTestVisitor(SymbolTable symbolTable) {
+    /**
+     * Constructor that takes in a symbol table to do the type checking
+     *
+     * @param symbolTable used for typechecking
+     */
+    public TypeCheckerVisitor(SymbolTable symbolTable) {
         super(symbolTable);
+
     }
 
-
+    /**
+     * Visit the ASTNode SimpleNames and then look them up in a typeTable to see if they are valid
+     *
+     * @param sn ASTNode SimpleName
+     * @return false to not search children
+     */
     @Override
     public boolean visit(SimpleName sn) {
         if (getCurClassFQN() != null) {
-
             lookup(sn.getIdentifier(), sn);
-            String testMsg = "E(" + sn.getIdentifier() + ") = " + typeTable.get(sn);
-            DynamicTest snTest = DynamicTest.dynamicTest(testMsg, () -> {
-                Map<ASTNode, String> ttCopy = new HashMap<>(typeTable);
-
-                logger.info("TEST: {}", testMsg);
-
-                assertEquals(ttCopy.get(sn), ttCopy.get(sn));
-            });
-
-            //testNodeType
-
-            infixTestNode.push(DynamicContainer.dynamicContainer("E |- " + sn + ":" + typeTable.get(sn), Stream.of(snTest)));
-            infixTests.add(DynamicContainer.dynamicContainer("E |- " + sn + ":" + typeTable.get(sn), Stream.of(snTest)));
         }
-
         return false;
     }
 
@@ -130,15 +106,9 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
             return false;
         }
 
-        //logger.info("EXPRESSION NAME: {}", expressionNameType);
-
-        expressionEvaluatorTest.evaluateExpression(expressionNameType, ie);
-
-        //TODO make some dynamic tests in the evaluate expression and run them!!
-        infixTestNode.push(DynamicContainer.dynamicContainer("E |- " + ie + " : " + typeTable.get(ie), expressionEvaluatorTest.getTests().stream()));
-        //infixTests.add(DynamicContainer.dynamicContainer("E |- " + ie + ":" + typeTable.get(ie), expressionEvaluatorTest.getTests().stream()));
-
+        expressionEvaluator.evaluateExpression(expressionNameType, ie);
         return true;
+
     }
 
 
@@ -152,12 +122,8 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
     private void lookup(String name, ASTNode node) {
         String type = UNKNOWN_TYPE;
         if (name.equals(getCurClassSN())) {
-
-            //logger.info("NAME: {}", name);
             typeTable.put(node, getCurClassFQN());
-            logger.info("TT: {}", typeTable);
-        }
-        else if (isField(name)) {
+        } else if (isField(name)) {
             type = getSymbolTable().getFieldType(getCurClassFQN(), name);
             typeTable.put(node, type);
         } else if (isMethod(name)) {
@@ -171,23 +137,36 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
             typeTable.put(node, type);
         } else typeTable.put(node, type);
 
-        logger.info("TYPE TABLE: {}", typeTable);
-        ArrayList<DynamicNode> tests = new ArrayList<>();
-        infixTestNode.push(DynamicContainer.dynamicContainer("This is a type node test for: " + name + " : " + type, tests.stream()));
-        tests.add(getInfixTestNode().pop());
-        //tests.add(typeCheckerDynamicTestVisitor.getInfixTestNode().pop());
-        tests.add(DynamicTest.dynamicTest(name + " : " + type, () -> assertFalse(typeTable.get(node).equals(UNKNOWN_TYPE))));
-
     }
 
+    /**
+     * Check if the simpleName is a class field
+     *
+     * @param name name of the node
+     * @return true if is a field
+     */
     private boolean isField(String name) {
         return getSymbolTable().fieldExists(getCurClassFQN(), name);
     }
 
+
+    /**
+     * Check if the simpleName is a name of a method
+     *
+     * @param name name of the node
+     * @return true if is a method in the current class
+     */
     private boolean isMethod(String name) {
         return getSymbolTable().methodExists(getCurClassFQN(), name);
     }
 
+
+    /**
+     * Check if the simpleName is a param of a method
+     *
+     * @param name name of the node
+     * @return true if is a method param in the current class
+     */
     private boolean isParam(String name) {
         return getSymbolTable().parameterExists(getCurClassFQN(), getCurMethodName(), name);
     }
@@ -196,11 +175,5 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
         return typeTable;
     }
 
-    public ArrayList<DynamicNode> getInfixTests() {
-        return infixTests;
-    }
 
-    public Stack<DynamicNode> getInfixTestNode() {
-        return infixTestNode;
-    }
 }

@@ -2,7 +2,7 @@ package edu.byu.yc.typechecker.testsymboltable;
 
 import java.util.ArrayList;
 
-import edu.byu.yc.typechecker.typetable.ExpressionEvaluator;
+import java.lang.String;
 
 /**
  * @author Samuel Nuttall

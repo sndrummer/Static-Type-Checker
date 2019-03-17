@@ -2,20 +2,8 @@
 Static Type Checker Java
 
 ## What you need to do
-1. You just need to check primitives for type compatibility
-2. DO NOT FREAKING DO LOCAL VARIABLES BECAUSE THERE IS NO SUPPORT FOR THEM!! 
-2. Check widening
- ### Numeric Primitives 
- - short
- - int
- - long
- - float 
- - double
+1. The files src\test\java\edu\byu\yc\typechecker\TypeCheckerDynamicTestVisitorTests.java, edu.byu.yc.typechecker.TypeCheckerDynamicTestVisitor, and 
+ edu.byu.yc.typechecker.ExpressionEvaluatorTest have the Dynamic Node tests.
  
- ### Textual Primitives 
- - byte 
- - char
- 
- ### Boolean and null primitives
- - boolean 
- - null
+2.  
+dynamic node proofs 

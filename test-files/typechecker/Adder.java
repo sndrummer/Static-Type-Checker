@@ -1,4 +1,6 @@
 package edu.byu.yc.tests;
+import org.eclipse.jdt.core.dom.ASTNode;
+import java.lang.String;
 
 public class Adder {
     private static int a = 3;

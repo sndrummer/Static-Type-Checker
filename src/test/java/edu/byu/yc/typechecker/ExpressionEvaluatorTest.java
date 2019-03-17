@@ -1,9 +1,12 @@
-package edu.byu.yc.typechecker.typetable;
+package edu.byu.yc.typechecker;
 
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.junit.jupiter.api.DynamicContainer;
+import org.junit.jupiter.api.DynamicNode;
+import org.junit.jupiter.api.DynamicTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,19 +21,24 @@ import java.util.TreeSet;
 
 import edu.byu.yc.typechecker.symboltable.ASTNameType;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author Samuel Nuttall
  */
-public class ExpressionEvaluator {
+public class ExpressionEvaluatorTest {
 
-    private Logger logger = LoggerFactory.getLogger(ExpressionEvaluator.class);
+    private Logger logger = LoggerFactory.getLogger(ExpressionEvaluatorTest.class);
 
     private static final String UNKNOWN_TYPE = "$UNKNOWN";
     private Map<ASTNode, String> typeTable;
-    private TypeCheckerVisitor typeCheckerVisitor;
+    private TypeCheckerDynamicTestVisitor typeCheckerDynamicTestVisitor;
     private List<String> operations = new ArrayList<>();
 
     private Map<InfixExpression.Operator, String> operatorToOperationMap = new HashMap<>();
+
+    ArrayList<DynamicNode> tests = new ArrayList<>();
 
     //Numeric primitives
     private static final String SHORT = "short";
@@ -55,9 +63,9 @@ public class ExpressionEvaluator {
     private boolean checksOut = false;
     //private String expressionType = UNKNOWN_TYPE;
 
-    public ExpressionEvaluator(TypeCheckerVisitor typeCheckerVisitor) {
-        this.typeCheckerVisitor = typeCheckerVisitor;
-        this.typeTable = typeCheckerVisitor.getTypeTable();
+    public ExpressionEvaluatorTest(TypeCheckerDynamicTestVisitor typeCheckerDynamicTestVisitor) {
+        this.typeCheckerDynamicTestVisitor = typeCheckerDynamicTestVisitor;
+        this.typeTable = typeCheckerDynamicTestVisitor.getTypeTable();
         addOperators();
         addPrimitives();
         initOperatorToOperations();
@@ -101,7 +109,7 @@ public class ExpressionEvaluator {
     }
 
     public void evaluateExpression(ASTNameType expressionNameType, InfixExpression ie) {
-       // logger.info("EVALUATING EXPRESSION {}", ie);
+        //logger.info("EVALUATING EXPRESSION {}", ie);
         typeTable.put(ie, UNKNOWN_TYPE); // init as unknown type until resolved
         if (!arithmeticOperators.contains(ie.getOperator())) {
             logger.error("unsupported operation: {}, {}", ie.getOperator(), ie);
@@ -112,25 +120,15 @@ public class ExpressionEvaluator {
         ASTNode rhs = ie.getRightOperand();
         checkIfNumberLiteral(lhs);
         checkIfNumberLiteral(rhs);
-        lhs.accept(typeCheckerVisitor);
+        lhs.accept(typeCheckerDynamicTestVisitor);
         String lhType = typeTable.get(lhs);
-        //logger.info("LHS: {}, RHS: {}", lhs, rhs);
 
-        if (!isPrimitive(lhType)) {
-            logger.error("Tried to {} a non-primitive type: {} --> {}", operatorToOperationMap.get(ie.getOperator()), lhType, ie);
-            //logger.error("NODE: {}", lhs);
-            return;
-        }
-        if (!isNumericPrimitive(lhType)) { //!lhType.equals(INT)
-            logger.error("Tried to {} a non-numeric type: {} --> {}", operatorToOperationMap.get(ie.getOperator()), lhType, ie);
-            return;
-        }
-        rhs.accept(typeCheckerVisitor);
+        ArrayList<DynamicNode> tests = new ArrayList<>();
+        //tests.add(typeCheckerDynamicTestVisitor.getInfixTestNode().pop());
+
+        //logger.info("LHS: {}, RHS: {}", lhs, rhs);
+        rhs.accept(typeCheckerDynamicTestVisitor);
         String rhType = typeTable.get(rhs);
-        if (!isNumericPrimitive(rhType)) {  //!rhType.equals(INT)
-            logger.error("Tried to {} a non-numeric type: {} --> {}", operatorToOperationMap.get(ie.getOperator()), rhType, ie);
-            return;
-        }
 
 
         if (isExpressionTypeCompatible(expressionNameType.getType(), lhType, rhType)) {
@@ -139,6 +137,11 @@ public class ExpressionEvaluator {
         } else
             logger.error("Infix expression: {} {} = {}, is not type compatible or cannot be widened to type {}", expressionNameType.getType(), expressionNameType.getName(), ie, expressionNameType.getType());
 
+        tests.add(typeCheckerDynamicTestVisitor.getInfixTestNode().pop());
+        tests.add(DynamicTest.dynamicTest(expressionNameType.getType() + " " + expressionNameType.getName() + " = "+ ie, () -> assertTrue(isExpressionTypeCompatible(expressionNameType.getType(), lhType, rhType))));
+
+        typeCheckerDynamicTestVisitor.getInfixTestNode().push(DynamicContainer.dynamicContainer("E |- " + ie + " : " + typeTable.get(ie), tests.stream()));
+        typeCheckerDynamicTestVisitor.getInfixTests().add(DynamicContainer.dynamicContainer("E |- " + ie + " : " + typeTable.get(ie), tests.stream()));
     }
 
     private void checkIfNumberLiteral(ASTNode node) {
@@ -164,9 +167,9 @@ public class ExpressionEvaluator {
     }
 
     private boolean isExpressionTypeCompatible(String expressionType, String lhType, String rhType) {
-//        if (!(isNumericPrimitive(lhType) && isNumericPrimitive(rhType))) {
-//            return false;
-//        }
+        if (!(isNumericPrimitive(lhType) && isNumericPrimitive(rhType))) {
+            return false;
+        }
 
         if (expressionType != null) {
             return (compareNumericTypes(expressionType, lhType) >= 0 &&
@@ -300,5 +303,9 @@ public class ExpressionEvaluator {
         } else {
             return DOUBLE;
         }
+    }
+
+    public ArrayList<DynamicNode> getTests() {
+        return tests;
     }
 }

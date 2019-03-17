@@ -35,7 +35,7 @@ The **ISymbolTable** interface has been added to the `edu.byu.yc` package in the
 
 # Testing
 
-Use black-box testing to test your visitor. Since the symbol table does not validate programs, there are no "correct" or "incorrect" programs. Instead, consider which equivalence classes you can test. Explain your choice of tests in Javadoc comments or in a text file. In either case, your tests and your explanation of why they are sufficient must be a part of the patch you submit.
+Use black-box testing to test your visitor. Since the symbol table does not cvalidate programs, there are no "correct" or "incorrect" programs. Instead, consider which equivalence classes you can test. Explain your choice of tests in Javadoc comments or in a text file. In either case, your tests and your explanation of why they are sufficient must be a part of the patch you submit.
 
 # Recommendations
 

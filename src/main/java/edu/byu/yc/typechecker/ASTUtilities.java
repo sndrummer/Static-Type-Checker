@@ -14,6 +14,11 @@ public class ASTUtilities {
 
     }
 
+    /**
+     * Helpful method to retrieve fieldDeclaration names
+     * @param fd FieldDeclaration ASTNode
+     * @return String name of the field
+     */
     public static String getFieldDeclarationName(FieldDeclaration fd) {
         String fieldName = null;
         if (fd.fragments().get(0) instanceof VariableDeclarationFragment) {

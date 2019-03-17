@@ -34,7 +34,6 @@ public class AbstractTypeCheckerVisitor extends ASTVisitor {
 
         String classSimpleName = td.getName().toString();
         curClassSN = classSimpleName;
-        //logger.info("Class name {}", classSimpleName);
         curClassFQN = symbolTable.getClassSimpleToQualifiedName().get(classSimpleName);
 
         if (curClassFQN == null)
@@ -44,11 +43,19 @@ public class AbstractTypeCheckerVisitor extends ASTVisitor {
     }
 
 
+    /**
+     * Visit a method declaration Node get the current method for the environment
+     *
+     * @param md methodDeclaration Node
+     * @return true to visit children
+     */
     @Override
     public boolean visit(MethodDeclaration md) {
         setCurMethodName(md.getName().toString());
         return true;
     }
+
+
     @Override
     public void endVisit(MethodDeclaration node) {
         setCurMethodName(null);
