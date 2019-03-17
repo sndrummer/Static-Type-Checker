@@ -4,6 +4,7 @@ public class Adder {
     private static int a = 3;
     private static int b = 2;
     private static boolean p = true;
+    private static String llcoolj = "boom";
 
 
     private static int j = 2 + 2;
@@ -17,6 +18,8 @@ public class Adder {
         int s = hi + 2;
 
         lsdf = "ssdf";
+
+        llcoolj = "asdasd";
 
 
 

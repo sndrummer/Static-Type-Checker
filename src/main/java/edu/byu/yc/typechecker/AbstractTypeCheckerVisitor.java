@@ -16,6 +16,7 @@ public class AbstractTypeCheckerVisitor extends ASTVisitor {
     private static Logger logger = LoggerFactory.getLogger(AbstractTypeCheckerVisitor.class);
     private SymbolTable symbolTable;
     private String curClassFQN; // Current class being explored
+    private String curClassSN; // Current class simple name
     private String curMethodName; // Current class being explored
 
     public AbstractTypeCheckerVisitor(SymbolTable symbolTable) {
@@ -32,6 +33,7 @@ public class AbstractTypeCheckerVisitor extends ASTVisitor {
     public boolean visit(TypeDeclaration td) {
 
         String classSimpleName = td.getName().toString();
+        curClassSN = classSimpleName;
         //logger.info("Class name {}", classSimpleName);
         curClassFQN = symbolTable.getClassSimpleToQualifiedName().get(classSimpleName);
 
@@ -54,6 +56,10 @@ public class AbstractTypeCheckerVisitor extends ASTVisitor {
 
     public String getCurClassFQN() {
         return curClassFQN;
+    }
+
+    public String getCurClassSN() {
+        return curClassSN;
     }
 
     public SymbolTable getSymbolTable() {

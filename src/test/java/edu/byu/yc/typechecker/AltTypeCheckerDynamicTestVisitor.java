@@ -21,10 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import edu.byu.yc.ref.TypeCheckerAbstractVisitor;
 
-public class TypeCheckerDynamicTestVisitor extends TypeCheckerAbstractVisitor {
+public class AltTypeCheckerDynamicTestVisitor extends TypeCheckerAbstractVisitor {
     private Map<List<String>, String> symbolTable;
     private Map<ASTNode, String> typeTable;
-    private Logger logger = LoggerFactory.getLogger(TypeCheckerDynamicTestVisitor.class);
+    private Logger logger = LoggerFactory.getLogger(AltTypeCheckerDynamicTestVisitor.class);
     private HashSet<String> prims;
     private HashSet<InfixExpression.Operator> arithmeticOperators;
     private static final String BOOLEAN = "boolean";
@@ -33,7 +33,7 @@ public class TypeCheckerDynamicTestVisitor extends TypeCheckerAbstractVisitor {
     public Stack<DynamicNode> testNode;
     public ArrayList<DynamicNode> infixTests;
 
-    public TypeCheckerDynamicTestVisitor(Map<List<String>, String> st) {
+    public AltTypeCheckerDynamicTestVisitor(Map<List<String>, String> st) {
         symbolTable = st;
         prims = new HashSet<>();
         prims.add(INT);
