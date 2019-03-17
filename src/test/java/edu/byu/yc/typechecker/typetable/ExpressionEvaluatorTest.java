@@ -109,7 +109,7 @@ public class ExpressionEvaluatorTest {
     }
 
     public void evaluateExpression(ASTNameType expressionNameType, InfixExpression ie) {
-        // logger.info("EVALUATING EXPRESSION {}", ie);
+        //logger.info("EVALUATING EXPRESSION {}", ie);
         typeTable.put(ie, UNKNOWN_TYPE); // init as unknown type until resolved
         if (!arithmeticOperators.contains(ie.getOperator())) {
             logger.error("unsupported operation: {}, {}", ie.getOperator(), ie);

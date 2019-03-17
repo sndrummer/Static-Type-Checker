@@ -2,6 +2,7 @@ package edu.byu.yc.typechecker.symboltable;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -10,7 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import edu.byu.yc.typechecker.ASTUtilities;
 import edu.byu.yc.typechecker.AbstractTypeCheckerVisitor;
@@ -28,6 +33,24 @@ public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
     public SymbolTableVisitor(SymbolTable symbolTable) {
         super(symbolTable);
         //this.symbolTable = symbolTable;
+    }
+
+    private Set<String> declaredTypes = new HashSet<>();
+    private String packageName = "";
+    private Map<String, String> simpleNameToFullyQualifiedName = new HashMap<>();
+
+    /**
+     * Stores the import Statements in declaredTypes set so that the valid classes to be used within
+     * a file can be determined
+     *
+     * @param node ImportDeclaration node
+     * @return true to visit children
+     */
+    @Override
+    public boolean visit(ImportDeclaration node) {
+        ASTNode parent = node.getParent();
+        declaredTypes.add(node.getName().toString());
+        return true;
     }
 
     /**

@@ -130,6 +130,7 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
             return false;
         }
 
+        //logger.info("EXPRESSION NAME: {}", expressionNameType);
 
         expressionEvaluatorTest.evaluateExpression(expressionNameType, ie);
 
@@ -151,9 +152,12 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
     private void lookup(String name, ASTNode node) {
         String type = UNKNOWN_TYPE;
         if (name.equals(getCurClassSN())) {
+
+            //logger.info("NAME: {}", name);
             typeTable.put(node, getCurClassFQN());
+            logger.info("TT: {}", typeTable);
         }
-        if (isField(name)) {
+        else if (isField(name)) {
             type = getSymbolTable().getFieldType(getCurClassFQN(), name);
             typeTable.put(node, type);
         } else if (isMethod(name)) {
@@ -167,6 +171,7 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
             typeTable.put(node, type);
         } else typeTable.put(node, type);
 
+        logger.info("TYPE TABLE: {}", typeTable);
         ArrayList<DynamicNode> tests = new ArrayList<>();
         infixTestNode.push(DynamicContainer.dynamicContainer("This is a type node test for: " + name + " : " + type, tests.stream()));
         tests.add(getInfixTestNode().pop());

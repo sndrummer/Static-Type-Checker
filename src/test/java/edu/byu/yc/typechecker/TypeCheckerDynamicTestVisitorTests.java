@@ -21,15 +21,15 @@ import edu.byu.yc.typechecker.typetable.TypeCheckerDynamicTestVisitor;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TypeCheckerDynamicTestVisitorTests {
     private final String root = System.getProperty("user.dir");
-    private final String testfile = System.getProperty("Adder.java");
+    private final String testfile = System.getenv("testfile");
 
-    private final File adderFile = new File(new File(root, "test-files"), "Adder.java");
+    private final File adderFile = new File(new File(root, "test-files"), testfile);
     private final String adderContents = TypeChecker.readFile(adderFile.getPath());
 
 
 
     private ASTNode node;
-    private ArrayList<DynamicNode> infixTests;
+    private ArrayList<DynamicNode> typeProofTests;
 
 
     @BeforeAll
@@ -40,14 +40,14 @@ public class TypeCheckerDynamicTestVisitorTests {
         SymbolTable symbolTable = TypeChecker.createSymbolTable(node);
         TypeCheckerDynamicTestVisitor v = new TypeCheckerDynamicTestVisitor(symbolTable);
         node.accept(v);
-        infixTests = v.getInfixTests();
+        typeProofTests = v.getInfixTests();
     }
 
 
     @TestFactory
     public Stream<DynamicNode> typeProof() {
-    	return infixTests.stream();
-        //return Stream.of(infixTests.get(1));
+    	return typeProofTests.stream();
+        //return Stream.of(typeProofTests.get(1));
 
     }
 

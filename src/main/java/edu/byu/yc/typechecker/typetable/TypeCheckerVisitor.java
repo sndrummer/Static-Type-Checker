@@ -105,7 +105,6 @@ public class TypeCheckerVisitor extends AbstractTypeCheckerVisitor {
             return false;
         }
 
-
         expressionEvaluator.evaluateExpression(expressionNameType, ie);
         return true;
 
