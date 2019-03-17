@@ -151,7 +151,6 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
         String type = UNKNOWN_TYPE;
         if (name.equals(getCurClassSN())) {
             typeTable.put(node, getCurClassFQN());
-            logger.info("TT: {}", typeTable);
         } else if (isField(name)) {
             type = getSymbolTable().getFieldType(getCurClassFQN(), name);
             typeTable.put(node, type);
@@ -164,7 +163,11 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
         } else if (getCurMethodName() != null) {
             type = getSymbolTable().getLocalVariableType(getCurClassFQN(), getCurMethodName(), name);
             typeTable.put(node, type);
-        } else typeTable.put(node, type);
+        } else if (getSymbolTable().getValidTypes().get(getCurClassFQN()).contains(name)) {
+
+            typeTable.put(node, name);
+        }
+        else typeTable.put(node, type);
 
         logger.info("TYPE TABLE: {}", typeTable);
         ArrayList<DynamicNode> tests = new ArrayList<>();

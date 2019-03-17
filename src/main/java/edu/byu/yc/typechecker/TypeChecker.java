@@ -18,6 +18,7 @@ import java.util.Set;
 
 import edu.byu.yc.ref.AltSymbolTableVisitor;
 import edu.byu.yc.ref.NoAllCapsVisitor;
+import edu.byu.yc.typechecker.symboltable.ASTClassValidator;
 import edu.byu.yc.typechecker.symboltable.QualifiedClassVisitor;
 import edu.byu.yc.typechecker.symboltable.SymbolTable;
 import edu.byu.yc.typechecker.symboltable.SymbolTableVisitor;
@@ -131,9 +132,11 @@ public class TypeChecker {
 
         final QualifiedClassVisitor classVisitor = new QualifiedClassVisitor();
         node.accept(classVisitor);
-        SymbolTable symbolTable = new SymbolTable(classVisitor.getSimpleNameToFullyQualifiedName());
+
+        SymbolTable symbolTable = new SymbolTable(classVisitor.getSimpleNameToFullyQualifiedName(), classVisitor.getClassValidators().get(0));
         final SymbolTableVisitor v = new SymbolTableVisitor(symbolTable);
         node.accept(v);
+
         return symbolTable;
     }
 

@@ -4,7 +4,10 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.slf4j.Logger;
@@ -19,6 +22,7 @@ import java.util.Set;
 
 import edu.byu.yc.typechecker.ASTUtilities;
 import edu.byu.yc.typechecker.AbstractTypeCheckerVisitor;
+import edu.byu.yc.typechecker.environment.ASTEnvironment;
 
 
 /**
@@ -30,28 +34,11 @@ public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
 
     private static Logger logger = LoggerFactory.getLogger(SymbolTableVisitor.class);
 
+
     public SymbolTableVisitor(SymbolTable symbolTable) {
         super(symbolTable);
-        //this.symbolTable = symbolTable;
     }
 
-    private Set<String> declaredTypes = new HashSet<>();
-    private String packageName = "";
-    private Map<String, String> simpleNameToFullyQualifiedName = new HashMap<>();
-
-    /**
-     * Stores the import Statements in declaredTypes set so that the valid classes to be used within
-     * a file can be determined
-     *
-     * @param node ImportDeclaration node
-     * @return true to visit children
-     */
-    @Override
-    public boolean visit(ImportDeclaration node) {
-        ASTNode parent = node.getParent();
-        declaredTypes.add(node.getName().toString());
-        return true;
-    }
 
     /**
      * Visit FieldDeclarations and store the field types and names in the symbol table
@@ -65,8 +52,6 @@ public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
 
         //AST nameType binding
         ASTNameType fieldNameType = new ASTNameType(fieldName, fd.getType().toString());
-
-        //logger.info("Adding new field {}", fieldNameType);
 
         getSymbolTable().addField(getCurClassFQN(), fieldNameType);
         return true;
@@ -118,10 +103,8 @@ public class SymbolTableVisitor extends AbstractTypeCheckerVisitor {
             }
         }
 
-        //logger.info("Adding new method {} {} {}", method, params, localVariables);
         getSymbolTable().addMethod(getCurClassFQN(), method, params, localVariables);
         return true;
     }
-
 
 }

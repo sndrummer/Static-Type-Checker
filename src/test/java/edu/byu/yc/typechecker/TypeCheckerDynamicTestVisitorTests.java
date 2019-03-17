@@ -23,7 +23,7 @@ import edu.byu.yc.typechecker.symboltable.SymbolTable;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TypeCheckerDynamicTestVisitorTests {
     private final String root = System.getProperty("user.dir");
-    private final String testfile = System.getenv("testfile2");
+    private final String testfile = System.getenv("testfile");
 
     private final File adderFile = new File(new File(root, "test-files"), testfile);
     private final String adderContents = TypeChecker.readFile(adderFile.getPath());

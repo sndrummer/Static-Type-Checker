@@ -7,8 +7,10 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +28,7 @@ public class QualifiedClassVisitor extends ASTVisitor {
     private Set<String> declaredClasses = new HashSet<>();
     private String packageName = "";
     private Map<String, String> simpleNameToFullyQualifiedName = new HashMap<>();
+    private List<ASTClassValidator> classValidators = new ArrayList<>();
 
 
     /**
@@ -56,6 +59,7 @@ public class QualifiedClassVisitor extends ASTVisitor {
         if (parent instanceof BodyDeclaration) {
             TypeDeclaration parentTD = (TypeDeclaration) parent;
             String parentQN = simpleNameToFullyQualifiedName.get(parentTD.getName().toString());
+
             String qualifiedName =  parentQN + "." + declarationName;
             simpleNameToFullyQualifiedName.put(declarationName, qualifiedName);
             declaredClasses.add(qualifiedName);
@@ -68,6 +72,24 @@ public class QualifiedClassVisitor extends ASTVisitor {
         }
 
         return true;
+    }
+
+    /**
+     * For each class file, a new classValidator is added to simplify the resolving of the current
+     * environment. declaredTypes, simpleNameToFullyQualifiedName, and packageName are all reset for
+     * the next file to be traversed
+     *
+     * @param node Type Declaration node
+     */
+    @Override
+    public void endVisit(TypeDeclaration node) {
+        ASTNode parent = node.getParent();
+        if (!(parent instanceof BodyDeclaration)) {
+            ASTClassValidator v = new ASTClassValidator(declaredClasses, node, packageName);
+            classValidators.add(v);
+            declaredClasses = new HashSet<>();
+        }
+
     }
 
 
@@ -93,5 +115,9 @@ public class QualifiedClassVisitor extends ASTVisitor {
 
     public Map<String, String> getSimpleNameToFullyQualifiedName() {
         return simpleNameToFullyQualifiedName;
+    }
+
+    public List<ASTClassValidator> getClassValidators() {
+        return classValidators;
     }
 }

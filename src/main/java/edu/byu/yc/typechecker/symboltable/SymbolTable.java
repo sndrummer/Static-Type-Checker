@@ -4,8 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 
 /**
  * @author Samuel Nuttall
@@ -19,13 +22,18 @@ public class SymbolTable implements ISymbolTable {
 
     private Map<String, ClassFieldsMethodsParams> classFieldsMethodsParamsMap = new HashMap<>(); //class name to fields, methods, and parameters
     private Map<String, String> classSimpleToQualifiedName;
+    private Map<String, Set<String>> validTypes = new HashMap<>();
 
-    public SymbolTable(Map<String, String> classSimpleToQualifiedName) {
+    private ASTClassValidator validator;
+
+    public SymbolTable(Map<String, String> classSimpleToQualifiedName, ASTClassValidator classValidator) {
         this.classSimpleToQualifiedName = classSimpleToQualifiedName;
 
         for (Map.Entry<String, String> entry : classSimpleToQualifiedName.entrySet()) {
             classFieldsMethodsParamsMap.put(entry.getValue(), new ClassFieldsMethodsParams(entry.getValue()));
         }
+
+        this.validator = classValidator;
     }
 
     @Override
@@ -176,4 +184,22 @@ public class SymbolTable implements ISymbolTable {
         return classSimpleToQualifiedName;
     }
 
+    public void addValidType(String curClassName, String type) {
+        Set<String> classTypes;
+        if (validTypes.get(curClassName) == null) {
+            classTypes = new HashSet<>();
+        } else classTypes = validTypes.get(curClassName);
+
+        classTypes.add(type);
+
+        validTypes.put(curClassName, classTypes);
+    }
+
+    public Map<String, Set<String>> getValidTypes() {
+        return validTypes;
+    }
+
+    public ASTClassValidator getValidator() {
+        return validator;
+    }
 }

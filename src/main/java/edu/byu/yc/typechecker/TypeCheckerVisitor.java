@@ -38,7 +38,6 @@ public class TypeCheckerVisitor extends AbstractTypeCheckerVisitor {
      */
     public TypeCheckerVisitor(SymbolTable symbolTable) {
         super(symbolTable);
-
     }
 
     /**
@@ -135,7 +134,14 @@ public class TypeCheckerVisitor extends AbstractTypeCheckerVisitor {
         } else if (getCurMethodName() != null) {
             type = getSymbolTable().getLocalVariableType(getCurClassFQN(), getCurMethodName(), name);
             typeTable.put(node, type);
-        } else typeTable.put(node, type);
+        } else if (getSymbolTable().getValidTypes().get(getCurClassFQN()).contains(name)) {
+
+           typeTable.put(node, name);
+        }
+        else typeTable.put(node, type);
+
+        logger.debug("TYPE-TABLE: {}", typeTable);
+        logger.debug("VALID TYPES: {}", getSymbolTable().getValidTypes().get(getCurClassFQN()));
 
     }
 
