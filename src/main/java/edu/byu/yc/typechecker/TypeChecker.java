@@ -12,13 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import edu.byu.yc.ref.AltSymbolTableVisitor;
-import edu.byu.yc.ref.NoAllCapsVisitor;
-import edu.byu.yc.typechecker.symboltable.ASTClassValidator;
 import edu.byu.yc.typechecker.symboltable.QualifiedClassVisitor;
 import edu.byu.yc.typechecker.symboltable.SymbolTable;
 import edu.byu.yc.typechecker.symboltable.SymbolTableVisitor;
@@ -110,17 +105,6 @@ public class TypeChecker {
         return p.createAST(null);
     }
 
-    /**
-     * Get the names of every identifier whose letters are all capitalized in node.
-     *
-     * @param node An AST to be analyzed.
-     * @return The set of all identifiers in all caps contained in the AST.
-     */
-    public static Set<String> getAllCaps(ASTNode node) {
-        final NoAllCapsVisitor v = new NoAllCapsVisitor();
-        node.accept(v);
-        return v.getAllCaps();
-    }
 
     /**
      * First, get all the class qualified names and then pass them to the symbolTableVisitor
@@ -140,11 +124,6 @@ public class TypeChecker {
         return symbolTable;
     }
 
-    public static Map<List<String>, String> getSymbolTable(ASTNode node) {
-        final AltSymbolTableVisitor v = new AltSymbolTableVisitor();
-        node.accept(v);
-        return v.getSymbolTable();
-    }
 
     public static void main(String[] args) {
         ASTNode node = parseAll(expand(args));
