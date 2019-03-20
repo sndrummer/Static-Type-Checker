@@ -157,7 +157,7 @@ public class ExpressionEvaluator {
         return false;
     }
 
-    private boolean isPrimitive(String t) {
+    public boolean isPrimitive(String t) {
         if (t == null || t.equals(UNKNOWN_TYPE)) return false;
         return primitiveTypes.contains(t);
     }

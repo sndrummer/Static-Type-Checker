@@ -124,7 +124,7 @@ public class ExpressionEvaluatorTest {
         String lhType = typeTable.get(lhs);
 
         ArrayList<DynamicNode> tests = new ArrayList<>();
-        //tests.add(typeCheckerDynamicTestVisitor.getInfixTestNode().pop());
+        //tests.add(typeCheckerDynamicTestVisitor.getTestNode().pop());
 
         //logger.info("LHS: {}, RHS: {}", lhs, rhs);
         rhs.accept(typeCheckerDynamicTestVisitor);
@@ -137,11 +137,11 @@ public class ExpressionEvaluatorTest {
         } else
             logger.error("Infix expression: {} {} = {}, is not type compatible or cannot be widened to type {}", expressionNameType.getType(), expressionNameType.getName(), ie, expressionNameType.getType());
 
-        tests.add(typeCheckerDynamicTestVisitor.getInfixTestNode().pop());
+        tests.add(typeCheckerDynamicTestVisitor.getTestNode().pop());
         tests.add(DynamicTest.dynamicTest(expressionNameType.getType() + " " + expressionNameType.getName() + " = "+ ie, () -> assertTrue(isExpressionTypeCompatible(expressionNameType.getType(), lhType, rhType))));
 
-        typeCheckerDynamicTestVisitor.getInfixTestNode().push(DynamicContainer.dynamicContainer("E |- " + ie + " : " + typeTable.get(ie), tests.stream()));
-        typeCheckerDynamicTestVisitor.getInfixTests().add(DynamicContainer.dynamicContainer("E |- " + ie + " : " + typeTable.get(ie), tests.stream()));
+        typeCheckerDynamicTestVisitor.getTestNode().push(DynamicContainer.dynamicContainer("E |- " + ie + " : " + typeTable.get(ie), tests.stream()));
+        typeCheckerDynamicTestVisitor.getTypeCheckerTests().add(DynamicContainer.dynamicContainer("E |- " + ie + " : " + typeTable.get(ie), tests.stream()));
     }
 
     private void checkIfNumberLiteral(ASTNode node) {
@@ -193,7 +193,7 @@ public class ExpressionEvaluatorTest {
 
     }
 
-    private boolean isPrimitive(String t) {
+    public boolean isPrimitive(String t) {
         if (t == null || t.equals(UNKNOWN_TYPE)) return false;
         return primitiveTypes.contains(t);
     }

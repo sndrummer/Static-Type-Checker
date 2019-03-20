@@ -22,15 +22,12 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Stream;
 
-import edu.byu.yc.typechecker.ASTUtilities;
-import edu.byu.yc.typechecker.AbstractTypeCheckerVisitor;
-import edu.byu.yc.typechecker.ExpressionEvaluatorTest;
-import edu.byu.yc.typechecker.TypeCheckerVisitor;
 import edu.byu.yc.typechecker.symboltable.ASTNameType;
 import edu.byu.yc.typechecker.symboltable.SymbolTable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -47,9 +44,9 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
 
     private static final String UNKNOWN_TYPE = "$UNKNOWN";
 
-    private Stack<DynamicNode> infixTestNode = new Stack<>();
+    private Stack<DynamicNode> testNode = new Stack<>();
     private Stack<DynamicNode> testNodeType = new Stack<>();
-    private ArrayList<DynamicNode> infixTests = new ArrayList<>();
+    private ArrayList<DynamicNode> typeCheckerTests = new ArrayList<>();
 
 
     public TypeCheckerDynamicTestVisitor(SymbolTable symbolTable) {
@@ -62,19 +59,6 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
         if (getCurClassFQN() != null) {
 
             lookup(sn.getIdentifier(), sn);
-            String testMsg = "E(" + sn.getIdentifier() + ") = " + typeTable.get(sn);
-            DynamicTest snTest = DynamicTest.dynamicTest(testMsg, () -> {
-                Map<ASTNode, String> ttCopy = new HashMap<>(typeTable);
-
-                logger.info("TEST: {}", testMsg);
-
-                assertEquals(ttCopy.get(sn), ttCopy.get(sn));
-            });
-
-            //testNodeType
-
-            infixTestNode.push(DynamicContainer.dynamicContainer("E |- " + sn + ":" + typeTable.get(sn), Stream.of(snTest)));
-            infixTests.add(DynamicContainer.dynamicContainer("E |- " + sn + ":" + typeTable.get(sn), Stream.of(snTest)));
         }
 
         return false;
@@ -134,7 +118,7 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
         expressionEvaluatorTest.evaluateExpression(expressionNameType, ie);
 
         //TODO make some dynamic tests in the evaluate expression and run them!!
-        infixTestNode.push(DynamicContainer.dynamicContainer("E |- " + ie + " : " + typeTable.get(ie), expressionEvaluatorTest.getTests().stream()));
+        testNode.push(DynamicContainer.dynamicContainer("E |- " + ie + " : " + typeTable.get(ie), expressionEvaluatorTest.getTests().stream()));
 
         return true;
     }
@@ -147,33 +131,43 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
      * @param name name of the SimpleName ASTNode
      * @param node The ASTNode
      */
-    private void lookup(String name, ASTNode node) {
+    private void lookup(String name, SimpleName node) {
         String type = UNKNOWN_TYPE;
         if (name.equals(getCurClassSN())) {
-            typeTable.put(node, getCurClassFQN());
+            type = getCurClassFQN();
         } else if (isField(name)) {
             type = getSymbolTable().getFieldType(getCurClassFQN(), name);
             typeTable.put(node, type);
         } else if (isMethod(name)) {
             type = getSymbolTable().getMethodReturnType(getCurClassFQN(), name);
-            typeTable.put(node, type);
         } else if (isParam(name)) {
             type = getSymbolTable().getParameterType(getCurClassFQN(), getCurMethodName(), name);
-            typeTable.put(node, type);
         } else if (getCurMethodName() != null) {
             type = getSymbolTable().getLocalVariableType(getCurClassFQN(), getCurMethodName(), name);
-            typeTable.put(node, type);
-        } else if (getSymbolTable().getValidTypes().get(getCurClassFQN()).contains(name)) {
-
-            typeTable.put(node, name);
+        } else if (getSymbolTable().validTypeExists(getCurClassFQN(), name)) {
+            type = name;
         }
-        else typeTable.put(node, type);
+
+        if (type == null) type = UNKNOWN_TYPE;
+
+        typeTable.put(node, type);
+
+        String testMsg = "E(" + node.getIdentifier() + ") = " + typeTable.get(node);
+        DynamicTest snTest = DynamicTest.dynamicTest(testMsg, () -> {
+            Map<ASTNode, String> ttCopy = new HashMap<>(typeTable);
+            assertNotEquals(ttCopy.get(node), UNKNOWN_TYPE);
+        });
+
+
+        testNode.push(DynamicContainer.dynamicContainer("E |- " + node + ":" + typeTable.get(node), Stream.of(snTest)));
+        typeCheckerTests.add(DynamicContainer.dynamicContainer("E |- " + node + ":" + typeTable.get(node), Stream.of(snTest)));
 
         logger.info("TYPE TABLE: {}", typeTable);
         ArrayList<DynamicNode> tests = new ArrayList<>();
-        infixTestNode.push(DynamicContainer.dynamicContainer("This is a type node test for: " + name + " : " + type, tests.stream()));
-        tests.add(getInfixTestNode().pop());
-        tests.add(DynamicTest.dynamicTest(name + " : " + type, () -> assertFalse(typeTable.get(node).equals(UNKNOWN_TYPE))));
+        testNode.push(DynamicContainer.dynamicContainer("This is a type node test for: " + name + " : " + type, tests.stream()));
+
+        tests.add(getTestNode().pop());
+        tests.add(DynamicTest.dynamicTest(name + " : " + type, () -> assertNotEquals(UNKNOWN_TYPE, typeTable.get(node))));
 
     }
 
@@ -193,11 +187,11 @@ public class TypeCheckerDynamicTestVisitor extends AbstractTypeCheckerVisitor {
         return typeTable;
     }
 
-    public ArrayList<DynamicNode> getInfixTests() {
-        return infixTests;
+    public ArrayList<DynamicNode> getTypeCheckerTests() {
+        return typeCheckerTests;
     }
 
-    public Stack<DynamicNode> getInfixTestNode() {
-        return infixTestNode;
+    public Stack<DynamicNode> getTestNode() {
+        return testNode;
     }
 }

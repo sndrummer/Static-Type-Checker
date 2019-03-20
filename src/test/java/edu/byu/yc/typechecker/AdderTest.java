@@ -22,7 +22,7 @@ public class AdderTest {
     private static final String TEST_DIR = "test-files";
 
     private final String root = System.getProperty("user.dir");
-    private final File adderFile = new File(new File(root, TEST_DIR), "Adder.java");
+    private final File adderFile = new File(new File(root, TEST_DIR), "TestTC.java");
 
 
 

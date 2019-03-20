@@ -39,7 +39,7 @@ public class TypeCheckerDynamicTestVisitorTests {
         SymbolTable symbolTable = TypeChecker.createSymbolTable(node);
         TypeCheckerDynamicTestVisitor v = new TypeCheckerDynamicTestVisitor(symbolTable);
         node.accept(v);
-        typeProofTests = v.getInfixTests();
+        typeProofTests = v.getTypeCheckerTests();
     }
 
 

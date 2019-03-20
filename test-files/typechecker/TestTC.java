@@ -2,16 +2,16 @@ package edu.byu.yc.tests;
 import org.eclipse.jdt.core.dom.ASTNode;
 import java.lang.String;
 
-public class Adder {
+public class TestTC {
     private static int a = 3;
     private static int b = 2;
     private static boolean p = true;
-    private static String llcoolj = "boom";
+    private static String validString = "boom";
 
 
     private static int j = 2 + 2;
 
-    public static int addRight(int hi) {
+    public static int addRandom(int hi) {
 
         int cheese = 4;
         double whatup = 123;
@@ -19,10 +19,13 @@ public class Adder {
 
         int s = hi + 2;
 
-        lsdf = "ssdf";
+        invalidString = "ssdf";
 
-        llcoolj = "asdasd";
+        validString = "asdasd";
 
+        ASTNode node;
+
+        node = 5;
 
 
         return a + b * p;

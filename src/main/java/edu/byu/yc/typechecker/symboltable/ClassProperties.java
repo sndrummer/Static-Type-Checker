@@ -13,13 +13,13 @@ import java.util.Map;
 /**
  * @author Samuel Nuttall
  * <p>
- * ClassFieldsMethodsParams contains an individual class's fields, methods, and params types and names
+ * ClassProperties contains an individual class's fields, methods, and params types and names
  * This class is an integral part of the symbol table and holds all the relevent information for an
  * a class that has been visited by the symbol table visitor.
  */
-public class ClassFieldsMethodsParams {
+public class ClassProperties {
 
-    private Logger logger = LoggerFactory.getLogger(ClassFieldsMethodsParams.class);
+    private Logger logger = LoggerFactory.getLogger(ClassProperties.class);
 
     private String classFQN;
 
@@ -32,7 +32,7 @@ public class ClassFieldsMethodsParams {
      *
      * @param classFQN the fully qualified class name of the class
      */
-    public ClassFieldsMethodsParams(String classFQN) {
+    public ClassProperties(String classFQN) {
         this.classFQN = classFQN;
     }
 

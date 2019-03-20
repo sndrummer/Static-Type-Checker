@@ -1,5 +1,7 @@
 package edu.byu.yc.typechecker.testsymboltable;
 
+import org.eclipse.jdt.core.dom.ASTNode;
+
 import java.util.ArrayList;
 
 import java.lang.String;
@@ -31,11 +33,7 @@ public class TestCrap {
         context.add("Poop");
         ArrayList<String> c = new ArrayList<>(context);
 
-        float d = 12f + 54f;
-        double e = 15D + 13D;
-        long longV = 12l + 13l;
-        long l = 13L;
-        float a = 11.2f;
+
         double asdf = 15D + 13L;
 
         String poop = "poop";
@@ -43,6 +41,8 @@ public class TestCrap {
         char aChar = 'a';
 
         String newPoop = poop + notPoop + ' ' + aChar;
+
+        ASTNode node = null;
 
         System.out.println(newPoop);
 

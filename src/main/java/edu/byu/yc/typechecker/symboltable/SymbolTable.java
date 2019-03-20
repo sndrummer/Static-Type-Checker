@@ -20,7 +20,7 @@ public class SymbolTable implements ISymbolTable {
 
     private static Logger logger = LoggerFactory.getLogger(SymbolTable.class);
 
-    private Map<String, ClassFieldsMethodsParams> classFieldsMethodsParamsMap = new HashMap<>(); //class name to fields, methods, and parameters
+    private Map<String, ClassProperties> classFieldsMethodsParamsMap = new HashMap<>(); //class name to fields, methods, and parameters
     private Map<String, String> classSimpleToQualifiedName;
     private Map<String, Set<String>> validTypes = new HashMap<>();
 
@@ -30,7 +30,7 @@ public class SymbolTable implements ISymbolTable {
         this.classSimpleToQualifiedName = classSimpleToQualifiedName;
 
         for (Map.Entry<String, String> entry : classSimpleToQualifiedName.entrySet()) {
-            classFieldsMethodsParamsMap.put(entry.getValue(), new ClassFieldsMethodsParams(entry.getValue()));
+            classFieldsMethodsParamsMap.put(entry.getValue(), new ClassProperties(entry.getValue()));
         }
 
         this.validator = classValidator;
@@ -38,26 +38,26 @@ public class SymbolTable implements ISymbolTable {
 
     @Override
     public String getFieldType(String classFQN, String fieldName) {
-        ClassFieldsMethodsParams classFmp = classFieldsMethodsParamsMap.get(classFQN);
+        ClassProperties classFmp = classFieldsMethodsParamsMap.get(classFQN);
         return classFmp.getFieldTypeByName(fieldName);
 
     }
 
     @Override
     public String getMethodReturnType(String classFQN, String methodName) {
-        ClassFieldsMethodsParams classFPM = classFieldsMethodsParamsMap.get(classFQN);
+        ClassProperties classFPM = classFieldsMethodsParamsMap.get(classFQN);
         return classFPM.getMethodTypeByName(methodName);
     }
 
     @Override
     public String getParameterType(String classFQN, String methodName, String paramName) {
-        ClassFieldsMethodsParams classFPM = classFieldsMethodsParamsMap.get(classFQN);
+        ClassProperties classFPM = classFieldsMethodsParamsMap.get(classFQN);
         return classFPM.getParamTypeByName(methodName, paramName);
     }
 
     @Override
     public String getLocalVariableType(String classFQN, String methodName, String localVariableName) {
-        ClassFieldsMethodsParams classFPM = classFieldsMethodsParamsMap.get(classFQN);
+        ClassProperties classFPM = classFieldsMethodsParamsMap.get(classFQN);
         return classFPM.getLocalVariableTypeByName(methodName, localVariableName);
     }
 
@@ -68,7 +68,7 @@ public class SymbolTable implements ISymbolTable {
 
     @Override
     public boolean methodExists(String classFQN, String methodName) {
-        ClassFieldsMethodsParams classFPM = classFieldsMethodsParamsMap.get(classFQN);
+        ClassProperties classFPM = classFieldsMethodsParamsMap.get(classFQN);
         if (classFPM == null) {
             return false;
         }
@@ -85,7 +85,7 @@ public class SymbolTable implements ISymbolTable {
     @Override
     public boolean parameterExists(String classFQN, String methodName, String paramName) {
 
-        ClassFieldsMethodsParams classFPM = classFieldsMethodsParamsMap.get(classFQN);
+        ClassProperties classFPM = classFieldsMethodsParamsMap.get(classFQN);
         if (classFPM == null) {
             return false;
         }
@@ -94,7 +94,7 @@ public class SymbolTable implements ISymbolTable {
 
     @Override
     public boolean fieldExists(String classFQN, String fieldName) {
-        ClassFieldsMethodsParams classFPM = classFieldsMethodsParamsMap.get(classFQN);
+        ClassProperties classFPM = classFieldsMethodsParamsMap.get(classFQN);
         if (classFPM == null) {
             return false;
         }
@@ -110,7 +110,7 @@ public class SymbolTable implements ISymbolTable {
     @Override
     public boolean localVariableExists(String classFQN, String methodName, String localVariableName) {
 
-        ClassFieldsMethodsParams classFPM = classFieldsMethodsParamsMap.get(classFQN);
+        ClassProperties classFPM = classFieldsMethodsParamsMap.get(classFQN);
         if (classFPM == null) {
             return false;
         }
@@ -118,9 +118,16 @@ public class SymbolTable implements ISymbolTable {
 
     }
 
+    public boolean validTypeExists(String classFQN, String type) {
+        if (getValidTypes().get(classFQN) == null) {
+            return false;
+        } else return getValidTypes().get(classFQN).contains(type);
+
+    }
+
     private boolean findMethodProperty(String classFQN, String methodName, String propName,
                                        Map<ASTNameType, List<ASTNameType>> propMap) {
-        ClassFieldsMethodsParams classFPM = classFieldsMethodsParamsMap.get(classFQN);
+        ClassProperties classFPM = classFieldsMethodsParamsMap.get(classFQN);
         if (classFPM == null) {
             return false;
         }
@@ -149,24 +156,26 @@ public class SymbolTable implements ISymbolTable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("SymbolTable\n{\n");
-        for (Map.Entry<String, ClassFieldsMethodsParams> entry : classFieldsMethodsParamsMap.entrySet()) {
+        for (Map.Entry<String, ClassProperties> entry : classFieldsMethodsParamsMap.entrySet()) {
             sb.append(entry.getValue().toString());
         }
+        sb.append("\n\tValidTypes: ");
+        sb.append(getValidTypes());
         sb.append("\n}");
         return sb.toString();
     }
 
-    public Map<String, ClassFieldsMethodsParams> getClassFieldsMethodsParamsMap() {
+    public Map<String, ClassProperties> getClassFieldsMethodsParamsMap() {
         return classFieldsMethodsParamsMap;
     }
 
-    public void addNewClass(ClassFieldsMethodsParams classFieldsMethodsParams) {
-        classFieldsMethodsParamsMap.put(classFieldsMethodsParams.getClassFQN(), classFieldsMethodsParams);
+    public void addNewClass(ClassProperties classProperties) {
+        classFieldsMethodsParamsMap.put(classProperties.getClassFQN(), classProperties);
     }
 
     public void addField(String curClassName, ASTNameType field) {
 
-        ClassFieldsMethodsParams classFMP = classFieldsMethodsParamsMap.get(curClassName);
+        ClassProperties classFMP = classFieldsMethodsParamsMap.get(curClassName);
         if (classFMP == null) {
             logger.error("Class not found");
             return;
@@ -176,7 +185,7 @@ public class SymbolTable implements ISymbolTable {
 
     public void addMethod(String curClassName, ASTNameType method, List<ASTNameType> params,
                           List<ASTNameType> localVariables) {
-        ClassFieldsMethodsParams classFMP = classFieldsMethodsParamsMap.get(curClassName);
+        ClassProperties classFMP = classFieldsMethodsParamsMap.get(curClassName);
         classFMP.addMethod(method, params, localVariables);
     }
 
@@ -198,6 +207,7 @@ public class SymbolTable implements ISymbolTable {
     public Map<String, Set<String>> getValidTypes() {
         return validTypes;
     }
+
 
     public ASTClassValidator getValidator() {
         return validator;

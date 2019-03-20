@@ -11,6 +11,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,7 +64,6 @@ public class TypeCheckerVisitor extends AbstractTypeCheckerVisitor {
      */
     @Override
     public boolean visit(InfixExpression ie) {
-
         //get the parent of the infix expression
         ASTNode parent = ie;
         boolean parentFound = false;
@@ -121,27 +121,23 @@ public class TypeCheckerVisitor extends AbstractTypeCheckerVisitor {
     private void lookup(String name, ASTNode node) {
         String type = UNKNOWN_TYPE;
         if (name.equals(getCurClassSN())) {
-            typeTable.put(node, getCurClassFQN());
+            type = getCurClassFQN();
         } else if (isField(name)) {
             type = getSymbolTable().getFieldType(getCurClassFQN(), name);
             typeTable.put(node, type);
         } else if (isMethod(name)) {
             type = getSymbolTable().getMethodReturnType(getCurClassFQN(), name);
-            typeTable.put(node, type);
         } else if (isParam(name)) {
             type = getSymbolTable().getParameterType(getCurClassFQN(), getCurMethodName(), name);
-            typeTable.put(node, type);
         } else if (getCurMethodName() != null) {
             type = getSymbolTable().getLocalVariableType(getCurClassFQN(), getCurMethodName(), name);
-            typeTable.put(node, type);
-        } else if (getSymbolTable().getValidTypes().get(getCurClassFQN()).contains(name)) {
-
-           typeTable.put(node, name);
+        } else if (getSymbolTable().validTypeExists(getCurClassFQN(), name)) {
+            type = name;
         }
-        else typeTable.put(node, type);
 
-        logger.debug("TYPE-TABLE: {}", typeTable);
-        logger.debug("VALID TYPES: {}", getSymbolTable().getValidTypes().get(getCurClassFQN()));
+        if (type == null) type = UNKNOWN_TYPE;
+
+        typeTable.put(node, type);
 
     }
 
@@ -177,6 +173,11 @@ public class TypeCheckerVisitor extends AbstractTypeCheckerVisitor {
         return getSymbolTable().parameterExists(getCurClassFQN(), getCurMethodName(), name);
     }
 
+    /**
+     * Returns a table of the ASTNodes associated with their resolved type
+     *
+     * @return A map that maps the ASTNode to it's type
+     */
     public Map<ASTNode, String> getTypeTable() {
         return typeTable;
     }

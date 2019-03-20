@@ -1,4 +1,5 @@
 package edu.byu.yc.tests;
+import java.lang.String;
 
 public class Fields {
 
@@ -8,5 +9,5 @@ public class Fields {
 
     float fl = 4f;
 
-    private ASTNode node;
+    boolean aBool = false;
 }
